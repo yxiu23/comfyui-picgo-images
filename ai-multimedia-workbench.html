@@ -389,7 +389,7 @@ textarea { resize: vertical; min-height: 80px; font-family: inherit; }
 .tag.async { background: var(--brand-soft); color: var(--brand-1); }
 .tag.sync  { background: rgba(245,158,11,.12); color: var(--warning); }
 .tag.est-cost {
-  background: var(--brand-grad);
+  background: var(--brand-1);
   color: white;
   font-weight: 600;
 }
@@ -453,7 +453,7 @@ select option { background: var(--bg-elev); color: var(--text); }
   -webkit-appearance: none;
   width: 16px; height: 16px;
   border-radius: 50%;
-  background: var(--brand-grad);
+  background: var(--brand-1);
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(99,102,241,.4);
 }
@@ -498,6 +498,11 @@ select option { background: var(--bg-elev); color: var(--text); }
   transition: all var(--transition);
 }
 .prompt-history-btn:hover { background: var(--brand-soft); color: var(--brand-1); }
+/* 内置提示词预设：短名称 + 独立选择器，避免长中文撑满界面。 */
+.prompt-preset-select { max-width: 118px; min-width: 86px; margin-left: auto; padding: 3px 22px 3px 7px; font-size: 11px; border-radius: 6px; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+.prompt-preset-select:focus { box-shadow: 0 0 0 2px var(--brand-soft); }
+.prompt-preset-hint { margin-top: 5px; font-size: 10.5px; color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
+.prompt-preset-hint strong { color: var(--brand-1); font-weight: 600; }
 .prompt-history-list {
   position: absolute;
   top: 100%;
@@ -1859,6 +1864,14 @@ select option { background: var(--bg-elev); color: var(--text); }
   .tool-group { padding-right: 6px; }
 }
 
+/* ============ 补充能量：统计页支付卡片 ============ */
+.energy-card{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);display:flex;align-items:center;justify-content:space-between;gap:18px;overflow:hidden;}
+.energy-info{min-width:0;flex:1}.energy-kicker{font-size:11px;color:var(--brand-1);font-weight:700;letter-spacing:.06em;margin-bottom:5px}.energy-title{font-size:16px;font-weight:700;color:var(--text);margin:0 0 5px}.energy-desc{font-size:12px;color:var(--text-muted);line-height:1.6;margin:0}.energy-pay-btn{margin-top:12px;padding:8px 14px;border-radius:10px;background:var(--brand-1);color:#fff;font-size:12px;font-weight:600;transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease}.energy-pay-btn:hover{box-shadow:0 6px 18px rgba(59,110,245,.18);transform:translateY(-1px)}.energy-pay-btn:active{transform:scale(.97)}
+.energy-qr{width:132px;height:132px;flex:0 0 132px;background:#fff;border-radius:12px;padding:8px;box-sizing:border-box;cursor:zoom-in;box-shadow:0 3px 16px rgba(0,0,0,.08)}.energy-qr img{display:block;width:100%;height:100%;image-rendering:pixelated}.energy-mobile-note{display:none;font-size:11px;color:var(--text-dim);margin-top:8px}
+.energy-qr-modal{display:flex;justify-content:center;align-items:center;padding:8px}.energy-qr-large{width:min(72vw,360px);height:min(72vw,360px);background:#fff;padding:14px;border-radius:16px;box-sizing:border-box;image-rendering:pixelated}
+@media(max-width:700px){.energy-card{padding:14px}.energy-qr{display:none}.energy-desc{font-size:11px}.energy-mobile-note{display:block}.energy-pay-btn{width:100%}}
+@media(max-width:460px){.energy-card{display:block}.energy-qr{display:none}.energy-pay-btn{margin-top:10px}}
+
 /* 消费统计 */
 .stats-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
 .stats-range-btn {
@@ -2275,10 +2288,10 @@ button:active:not(:disabled), .action-btn:active:not(:disabled) { transform: sca
       <div class="section-title">
         <span>模型选择</span>
         <div class="preset-actions">
-          <select class="preset-select" id="presetSelect" title="载入预设">
-            <option value="">载入预设…</option>
+          <select class="preset-select" id="presetSelect" title="预设">
+            <option value="">预设…</option>
           </select>
-          <button class="preset-btn" id="savePresetBtn">存预设</button>
+          <button class="preset-btn" id="savePresetBtn">保存</button>
         </div>
       </div>
       <div class="model-select-wrap">
@@ -2548,6 +2561,9 @@ button:active:not(:disabled), .action-btn:active:not(:disabled) { transform: sca
 /* ============================================================
    配置
    ============================================================ */
+const WECHAT_PAY_URI = 'wxp://f2f0bhNf2RE-C229PBeSBM85o3AVfGoHJfCF5uhtlrg7jhA';
+const WECHAT_QR_DATA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADAUlEQVR4nO2cTY7jIBCFXw2WssQ3yFHgZrmaOUpugJctYb1ZFPgnvRj1ZMZOnPKiFdv51IVUol49IEL8+Eq/fs4ABhlkkEEGGWTQOSGpVwekfhIAk0jEpE+BsX0hHhKeQftDgSSZAWDsIBEAUu/IQd87kiS30H7hGbQ/NM4TgN5eCGAShOw0D3QGOSo8gw6EfAHStaBND//vPxn0ilD3+CBkUABA6stJvlkWLz4mg/4F5KmaQaSHTg8kCyTCUWK7PSw8g/aGkoiI9ADCvYPc7h0kqpgAgKXrOCY8g/auGktdYLp+CTECTL0DUw8B/LZwvPiYDHoGgnaVgQUc4PSTvhj8XCZ80e/pNbz4mAx6BmoZkR2bUnBs9kTzI0KG5otlxPkhrJynkOdkIKl9qPoRviaNvrWMODPUqkGuZaK2GRnQPNAmpP2xjDg/pMpSwkAIcCHgMyQMpWticuqIsSsCf0B4Bu0ObRSjr7Wiiko/y4rcJKfNEaeHmo5oDlX1rvW2KstFVpiy/CwoLL3GXaTOEb7oWjlCru7lW43JoL+DyLuIxLFDywMSIQMI9wuXBdCDwjPoCMhpXZAIYFkcl4hJ2lLoZC72B0CzZ0kCcLXTXLtW1a3QjtSU5emhJhbVcSjNikAtE9WpzE7fWkacH9p6ls2mogqHmgcrc8p6jdNDq7VPWS9xVs1QXav5K2HYNzyDDoJE+qluub5lYJGSHHyB3O7bXZhvMSaDnpojUrwQ6Vo6AI4C7yhBJ4epQ7oSkvq8f3gG7Q6t90ewNRerla6wURmmLM8Prdc1OLegZNlIzs0ny4gPgJYzXSS/ZLPF0hFQM5PtQM9bjMmgp6DQaoVuv03XAmjDsVoFBSQeE55B++uIDN0vVf0IzrtjmldlfsSHQI8neCTkCcDYzx5FBlMEYL3GZ0CPGcEkjgI4rRNLWug5L3OoTg+tK4R2nxm109RruzHfqsanQPOZLon6oK2CDuOFumOm/rDEIeEZtB/0/Zjvny/7ZTKDDDLIIIMMMggAfgPsyVnBnGk1FgAAAABJRU5ErkJggg==';
+
 const CONFIG = {
   API_BASE: 'https://api.wuyinkeji.com',
   DETAIL_PATH: '/api/async/detail',
@@ -2663,7 +2679,7 @@ const MODELS = {
       billing: { type: 'perSecond', unit: 0.3, durationKey: 'duration' },
       params: [
         { key: 'prompt', label: '提示词', type: 'textarea', required: true, default: '' },
-        { key: 'ratio', label: '宽高比', type: 'select', required: false, default: '16:9',
+        { key: 'ratio', label: '宽高比', type: 'select', required: false, default: 'adaptive',
           options: ['21:9','16:9','4:3','1:1','3:4','9:16','adaptive'] },
         { key: 'duration', label: '时长', type: 'range', required: false, default: 5, min: 4, max: 15, step: 1, unit: 's', hint: '4-15 秒' },
         { key: 'resolution', label: '分辨率', type: 'select', required: false, default: '2K', options: ['768P','2K'] },
@@ -2692,7 +2708,7 @@ const MODELS = {
         { key: 'prompt', label: '提示词', type: 'textarea', required: true, default: '' },
         { key: 'size', label: '尺寸', type: 'select', required: false, default: '1280x720',
           options: ['1280x720','720x1280','1920x1080','1080x1920'] },
-        { key: 'duration', label: '时长', type: 'range', required: false, default: 10, min: 1, max: 30, step: 1, unit: 's' },
+        { key: 'duration', label: '时长', type: 'range', required: false, default: 10, min: 10, max: 10, step: 1, unit: 's', hint: '固定 10 秒' },
         { key: 'images', label: '参考图 URL（最多1张）', type: 'url', required: false },
         { key: 'video', label: '参考视频 URL（最多1个）', type: 'url', required: false }
       ]
@@ -2709,7 +2725,6 @@ const MODELS = {
         { key: 'duration', label: '时长', type: 'range', required: false, default: 5, min: 1, max: 10, step: 1, unit: 's', hint: '1-10 秒' },
         { key: 'subjects', label: '主体图 URL（逗号分隔）', type: 'text', required: false, hint: '1-7张主体图' },
         { key: 'image_url', label: '图像参考 URL（逗号分隔）', type: 'text', required: false, hint: '1-7张' },
-        { key: 'video_url', label: '视频参考 URL（逗号分隔）', type: 'text', required: false, hint: '1-2个视频' },
         { key: 'bgm', label: '背景音乐', type: 'select', required: false, default: 'false', options: ['true','false'] },
         { key: 'watermark', label: '水印', type: 'select', required: false, default: '1', options: ['1','0'] }
       ]
@@ -2841,6 +2856,28 @@ const MODELS = {
     }
   ]
 };
+
+
+/* ============================================================
+   内置提示词预设（按用户提供原文保存；选择后可继续追加手动描述）
+   ============================================================ */
+const PROMPT_PRESETS = [
+  { id:'none', name:'不用预设', prompt:'' },
+  { id:'clarify', name:'糊转清晰', prompt:'增强画质，修复模糊噪点压缩痕迹，还原画面全部细节，保留原图构图物体人物色彩不变，提升锐度，高清化，不要改动原有物体造型。' },
+  { id:'restore-text', name:'文本还原', prompt:'增强画质，完整还原图片内全部文字，严格保持原有文字内容、字体样式、字体颜色、排版位置，文字不能出错，不要篡改文字信息。' },
+  { id:'split-elements', name:'拆分元素', prompt:'将画面里各个物体、图形元素相互分离开，每个元素独立完整，保留原始造型色彩，分离物体，元素拆分，透明背景。' },
+  { id:'split-poster', name:'拆分海报', prompt:'解析海报，把海报中的插画、图形、文字组件全部拆分为独立素材，各自完整保留样式，透明背景。' },
+  { id:'extract-subject', name:'提取主体', prompt:'只保留画面主体对象，移除全部背景，透明背景，主体造型、颜色、细节 100% 原样保留。' },
+  { id:'extract-bg', name:'提取背景', prompt:'移除画面所有前景主体人物物体，只保留原始背景画面，还原背景细节。' },
+  { id:'remove-text', name:'去掉文字', prompt:'抹除画面内所有文字、水印、标识，修复文字区域画面纹理，其余画面内容保持不变。' },
+  { id:'line-art', name:'转线稿图', prompt:'根据参考图生成干净黑白线稿，只保留轮廓与结构线条，去除色彩、阴影、渐变，线条干净流畅。' },
+  { id:'old-photo', name:'修老照片', prompt:'老照片修复，修复破损、褪色、划痕、噪点，还原人物五官细节，还原色彩，保留老照片氛围感。' },
+  { id:'flat-digital', name:'转电子版', prompt:'将实拍拍摄的实物照片转为平面电子版效果图，消除拍摄光影、畸变、环境杂物，平面化呈现设计内容，透明背景。' },
+  { id:'remove-texture', name:'去布纹理', prompt:'消除皮革、布料、织物表面纹理褶皱，去除实物拍摄反光，图案内容完整保留，转为平面矢量质感。' },
+  { id:'flat-2d', name:'转二维图', prompt:'消除立体光影、透视阴影，把图像扁平化处理，二维平面插画效果，物体形态配色不变。' },
+  { id:'resize-canvas', name:'修改尺寸', prompt:'保持原图全部内容、元素、构图不变，调整画布比例尺寸，补全边缘画面，不改动内部物体。' },
+  { id:'poster-design', name:'海报生成', prompt:'基于参考图结合用户描述生成商业海报，完善排版布局，优化视觉，可增加标题装饰元素，商业平面海报设计。' }
+];
 
 /* ============================================================
    工具函数
@@ -3542,6 +3579,132 @@ class PollManager {
 }
 const pollManager = new PollManager();
 
+
+/* ============================================================
+   API Schema 严格校验层
+   关键修改：统一在最终提交前按速创文档校验字段、枚举、数量上限、互斥关系与条件参数。
+   这样手机端/电脑端不会因为 UI 差异发送不同格式的请求。
+   ============================================================ */
+function normalizeAndValidateApiBody(model, input) {
+  const body = { ...(input || {}) };
+  const errors = [];
+  const has = k => body[k] !== undefined && body[k] !== null && String(body[k]).trim() !== '';
+  const add = msg => { if (msg && !errors.includes(msg)) errors.push(msg); };
+  const validUrl = v => /^https?:\/\/\S+$/i.test(String(v || '').trim());
+  const splitCsv = v => String(v || '').split(',').map(s => s.trim()).filter(Boolean);
+  const checkCsv = (key, label, max) => {
+    if (!has(key)) return;
+    const arr = splitCsv(body[key]);
+    if (arr.some(u => !validUrl(u))) add(`${label}包含无效 URL`);
+    if (max != null && arr.length > max) add(`${label}最多 ${max} 个`);
+    body[key] = arr.join(',');
+  };
+  const checkUrl = (key, label) => { if (has(key) && !validUrl(body[key])) add(`${label}需要以 http:// 或 https:// 开头`); };
+  const checkIntRange = (key, label, min, max) => {
+    if (!has(key)) return;
+    const n = Number(body[key]);
+    if (!Number.isInteger(n) || n < min || n > max) add(`${label}应为 ${min}～${max} 的整数`);
+    else body[key] = String(n);
+  };
+  const checkEnum = (key, label, values) => {
+    if (!has(key)) return;
+    const v = String(body[key]);
+    if (!values.includes(v)) add(`${label}取值无效`);
+    else body[key] = v;
+  };
+
+  switch (model?.id) {
+    case 'nanoBanana2':
+    case 'nanoBanana_pro':
+    case 'nanoBanana2Lite':
+      checkEnum('size', '分辨率', model.id === 'nanoBanana2Lite' ? ['1K'] : ['1K','2K','4K']);
+      checkEnum('aspectRatio', '比例', ['auto','1:1','16:9','9:16','4:3','3:4','3:2','2:3','5:4','4:5','21:9','1:4','1:8','4:1','8:1']);
+      if (Array.isArray(body.urls) && body.urls.length > (model.id === 'nanoBanana2' || model.id === 'nanoBanana_pro' ? 14 : Infinity)) add('参考图最多 14 张');
+      break;
+    case 'gpt-image-2':
+      checkEnum('size', '比例', ['auto','1:1','3:2','2:3','16:9','9:16','4:3','3:4','21:9','9:21','1:3','3:1','2:1','1:2']);
+      break;
+
+    case 'wan3':
+      checkEnum('ratio', '宽高比', ['16:9','9:16']);
+      checkIntRange('duration', '时长', 4, 30);
+      checkEnum('generate_audio', '生成音频', ['true','false']);
+      checkUrl('first_frame','首帧图 URL'); checkUrl('last_frame','尾帧图 URL');
+      checkCsv('images','参考图片',10); checkCsv('videos','参考视频',5); checkCsv('audios','参考音频',5);
+      if (has('last_frame') && !has('first_frame')) add('尾帧需要搭配首帧');
+      if ((has('first_frame') || has('last_frame')) && (has('images') || has('videos') || has('audios'))) add('首尾帧模式不能同时搭配参考图片、参考视频或参考音频');
+      break;
+
+    case 'minimax_h3':
+      checkEnum('ratio', '宽高比', ['21:9','16:9','4:3','1:1','3:4','9:16','adaptive']);
+      checkIntRange('duration', '时长', 4, 15);
+      checkEnum('resolution', '分辨率', ['768P','2K']);
+      checkUrl('first_frame','首帧图 URL'); checkUrl('last_frame','尾帧图 URL');
+      checkCsv('images','参考图片',9); checkCsv('videos','参考视频',3); checkCsv('audios','参考音频',3);
+      if (has('last_frame') && !has('first_frame')) add('尾帧需要搭配首帧');
+      if ((has('first_frame') || has('last_frame')) && (has('images') || has('videos') || has('audios'))) add('首尾帧模式不能同时搭配参考图片、参考视频或参考音频');
+      break;
+
+    case 'video_upscaling': checkUrl('video_url','视频 URL'); break;
+
+    case 'google_omni':
+      // 文档：duration 固定为默认 10；images 最多1张、video最多1个。
+      if (has('duration') && Number(body.duration) !== 10) add('Google Omni 时长固定为 10 秒');
+      body.duration = '10';
+      checkUrl('images','参考图 URL'); checkUrl('video','参考视频 URL');
+      if (has('images') && has('video')) add('Google Omni 参考图与参考视频不要同时使用');
+      break;
+
+    case 'video_vidu':
+      checkEnum('aspectRatio','宽高比',['16:9','9:16','4:3','3:4','1:1']);
+      checkEnum('resolution','分辨率',['540p','720p','1080p']);
+      checkIntRange('duration','时长',1,10);
+      checkEnum('bgm','背景音乐',['true','false']);
+      checkEnum('watermark','水印',['1','0']);
+      checkCsv('subjects','主体图',7); checkCsv('image_url','图像参考',7);
+      if (has('subjects') && has('image_url')) add('主体图与图像参考不能同时使用');
+      // 当前文档的 video_url 注释明确只支持 viduq2-pro；本工作台模型为 Vidu Q3，因此不发送该字段。
+      if (has('video_url')) add('Vidu Q3 当前文档未确认支持 video_url，请不要提交该参数');
+      break;
+
+    case 'video_omni':
+      checkEnum('aspectRatio','宽高比',['16:9','9:16','1:1']);
+      checkEnum('resolution','模式',['std','pro','4k']);
+      checkIntRange('duration','时长',3,15);
+      checkEnum('sound','声音',['on','off']); checkEnum('watermark','水印',['1','0']);
+      checkUrl('firstFrameUrl','首帧图 URL'); checkUrl('lastFrameUrl','尾帧图 URL'); checkCsv('image_url','参考图',10); checkUrl('video_url','参考视频 URL');
+      if (has('lastFrameUrl') && !has('firstFrameUrl')) add('尾帧需要搭配首帧');
+      if (has('video_url') && String(body.sound) !== 'off') add('有参考视频时 sound 必须为 off');
+      break;
+
+    case 'digital_humans': checkUrl('audioUrl','音频 URL'); checkUrl('videoUrl','人物视频 URL'); break;
+    case 'video_package': checkUrl('video','视频 URL'); checkEnum('template_id','模板ID', Array.from({length:30}, (_,i)=>String(i+1))); break;
+
+    case 'veo3_fast':
+      checkEnum('aspectRatio','宽高比',['16:9']); checkEnum('size','清晰度',['720p','1080p']);
+      checkUrl('firstFrameUrl','首帧图 URL'); checkUrl('lastFrameUrl','尾帧图 URL');
+      if (Array.isArray(body.urls) && body.urls.length > 3) add('参考图最多 3 张');
+      if (has('lastFrameUrl') && !has('firstFrameUrl')) add('尾帧需要搭配首帧');
+      if ((has('firstFrameUrl') || has('lastFrameUrl')) && has('urls')) add('首尾帧与参考图不可同时使用');
+      break;
+
+    case 'audio_tts':
+      if (has('speed')) { const n=Number(body.speed); if (!Number.isFinite(n)||n<0.5||n>2) add('语速应在 0.5～2'); else body.speed=String(n); }
+      if (has('vol')) { const n=Number(body.vol); if (!Number.isFinite(n)||n<=0||n>10) add('音量应大于 0 且不超过 10'); else body.vol=String(n); }
+      checkEnum('language_boost','语种',['auto','Chinese','Chinese,Yue','English','Arabic','Russian','Spanish','French','Portuguese','German','Turkish','Dutch','Ukrainian','Vietnamese','Indonesian','Japanese','Italian','Korean']);
+      break;
+    case 'voice_composite':
+      if (has('speed')) { const n=Number(body.speed); if (!Number.isFinite(n)||n<0.5||n>2) add('语速应在 0.5～2'); else body.speed=n; }
+      if (has('vol')) { const n=Number(body.vol); if (!Number.isFinite(n)||n<=0||n>10) add('音量应大于 0 且不超过 10'); else body.vol=n; }
+      checkEnum('language_boost','语种',['auto','Chinese','Chinese,Yue','English','Arabic','Russian','Spanish','French','Portuguese','German','Turkish','Dutch','Ukrainian','Vietnamese','Indonesian','Japanese','Italian','Korean']);
+      break;
+    case 'voice_clone':
+      checkUrl('audio_url','参考音频 URL');
+      break;
+  }
+  return { body, errors };
+}
+
 /* ============================================================
    UI 渲染层
    ============================================================ */
@@ -3557,6 +3720,9 @@ const UI = {
   lightboxIdx: 0,
   historySearch: '',
   historyFilter: 'all',
+  // 内置预设状态：用于更换/取消预设时保留用户追加描述。
+  promptPresetBase: {},
+  promptPresetName: {},
 
   init() {
     this.bindEvents();
@@ -3592,8 +3758,8 @@ const UI = {
 
   bindEvents() {
     $('#apiKeyInput').addEventListener('input', e => {
-      Store.setApiKey(e.target.value.trim());
-      if (e.target.value.trim()) {
+      Store.setApiKey(String(e.target.value||'').trim());
+      if (String(e.target.value||'').trim()) {
         $('#guideBanner').classList.remove('show');
         $('#appBody').classList.remove('with-guide');
       }
@@ -3611,7 +3777,7 @@ const UI = {
     const ghToken = Store.getGithubToken();
     if (ghToken) { CONFIG.GITHUB.TOKEN = ghToken; $('#ghTokenInput').value = ghToken; }
     $('#ghTokenInput').addEventListener('input', e => {
-      Store.setGithubToken(e.target.value.trim());
+      Store.setGithubToken(String(e.target.value||'').trim());
     });
     $('#toggleGhTokenBtn').addEventListener('click', () => {
       const inp = $('#ghTokenInput');
@@ -3652,12 +3818,12 @@ const UI = {
       $('#mobileSettingsSheet').classList.remove('show');
     });
     $('#mobileApiKey')?.addEventListener('input', e => {
-      Store.setApiKey(e.target.value.trim());
-      $('#apiKeyInput').value = e.target.value.trim();
+      Store.setApiKey(String(e.target.value||'').trim());
+      $('#apiKeyInput').value = String(e.target.value||'').trim();
     });
     $('#mobileGhToken')?.addEventListener('input', e => {
-      Store.setGithubToken(e.target.value.trim());
-      $('#ghTokenInput').value = e.target.value.trim();
+      Store.setGithubToken(String(e.target.value||'').trim());
+      $('#ghTokenInput').value = String(e.target.value||'').trim();
     });
     $('#mobileThemeBtn')?.addEventListener('click', () => $('#themeToggleBtn').click());
     $('#mobileSoundBtn')?.addEventListener('click', () => $('#soundToggleBtn').click());
@@ -3742,7 +3908,7 @@ const UI = {
     $('#presetSaveConfirmBtn').addEventListener('click', () => this.confirmSavePreset());
     $('#savePresetBtn').addEventListener('click', () => this.openPresetModal());
     $('#presetSelect').addEventListener('change', e => {
-      if (e.target.value) this.loadPreset(e.target.value);
+      this.applyUnifiedPreset(e.target.value);
     });
 
     // Lightbox
@@ -4011,6 +4177,9 @@ const UI = {
         if (el) params[p.key] = el.value;
       }
     });
+    // 预设前缀作为缓存元数据保存，避免切换模型后再次选择预设时重复叠加。
+    params.__promptPresetBase = this.promptPresetBase[this.currentModelKey] || '';
+    params.__promptPresetName = this.promptPresetName[this.currentModelKey] || '';
     this.formCache[key] = params;
     this.formCache[this.currentTab + '_model'] = this.currentModel.id;
   },
@@ -4021,6 +4190,9 @@ const UI = {
     const key = this.currentTab + '_' + this.currentModel.id;
     const saved = this.formCache[key];
     if (!saved) return;
+    // 先恢复内置预设元数据，再恢复字段值。这样“换模型 → 换回来”仍能正确继续追加描述。
+    this.promptPresetBase[this.currentModelKey] = saved.__promptPresetBase || '';
+    this.promptPresetName[this.currentModelKey] = saved.__promptPresetName || '';
     const form = $('#paramForm');
     if (!form) return;
     this.currentModel.params.forEach(p => {
@@ -4058,6 +4230,13 @@ const UI = {
 
   getModel(tab, id) { return MODELS[tab].find(m => m.id === id); },
 
+  // 统一安全读取参数，尤其保证 prompt/text 不会被错误的 data-key 容器拦截。
+  getParamElement(group, param) {
+    if (!group) return null;
+    if (param.key === 'prompt' || param.key === 'text') return group.querySelector('textarea[data-key]') || group.querySelector('textarea');
+    return group.querySelector(`[data-key=\"${CSS.escape(param.key)}\"]`) || group.querySelector('input,textarea,select');
+  },
+
   renderParamForm(modelId) {
     const model = this.getModel(this.currentTab, modelId);
     this.currentModel = model;
@@ -4065,6 +4244,8 @@ const UI = {
     const modelKey = `${this.currentTab}/${modelId}`;
     if (!this.refState[modelKey]) this.refState[modelKey] = {};
     this.currentModelKey = modelKey;
+    if (!(modelKey in this.promptPresetBase)) this.promptPresetBase[modelKey] = '';
+    if (!(modelKey in this.promptPresetName)) this.promptPresetName[modelKey] = '';
 
     $('#modelMeta').innerHTML = `
       <span class="tag price">${model.price}</span>
@@ -4077,16 +4258,18 @@ const UI = {
       const grp = document.createElement('div');
       grp.className = 'form-group';
       grp.dataset.key = p.key;
-      // A2: prompt 历史快选
+      // A2：最近提示词 + 内置预设。UI 仅显示短名称，完整指令放入 prompt。
       let promptHistoryBtn = '';
       if (p.key === 'prompt' || p.key === 'text') {
-        promptHistoryBtn = `<button class="prompt-history-btn" type="button" id="phBtn-${p.key}">📚 最近</button>`;
+        promptHistoryBtn = `<button class="prompt-history-btn" type="button" id="phBtn-${p.key}">最近</button>`;
       }
       const label = `<label>${escapeHtml(p.label)} ${p.required ? '<span class="req">*</span>' : '<span class="opt">（可选）</span>'}${promptHistoryBtn}</label>`;
       let input = '';
       const defVal = p.default != null ? String(p.default) : '';
       if (p.type === 'textarea') {
-        input = `<div class="prompt-history-wrap"><textarea data-key="${p.key}" placeholder="${escapeHtml(p.placeholder||'')}" ${p.required?'required':''}>${escapeHtml(defVal)}</textarea><div class="prompt-history-list" id="phList-${p.key}"></div></div>`;
+        const presetHint = (p.key === 'prompt' && this.currentTab === 'image')
+          ? `<div class="prompt-preset-hint" id="promptPresetHint">可追加描述 · 透明背景可补「保留背景」</div>` : '';
+        input = `<div class="prompt-history-wrap"><textarea data-key="${p.key}" placeholder="${escapeHtml(p.placeholder||'')}" ${p.required?'required':''}>${escapeHtml(defVal)}</textarea><div class="prompt-history-list" id="phList-${p.key}"></div>${presetHint}</div>`;
       } else if (p.type === 'select') {
         const opts = p.options.map(o => {
           if (typeof o === 'object') return `<option value="${escapeHtml(o.value)}" ${o.value===defVal?'selected':''}>${escapeHtml(o.label)}</option>`;
@@ -4191,6 +4374,8 @@ const UI = {
       });
     }
 
+    this.updatePromptPresetHint();
+
     // url-list
     $$('.url-list', form).forEach(ul => {
       const addBtn = ul.querySelector('.add-url-btn');
@@ -4205,6 +4390,31 @@ const UI = {
         ul.querySelector('.del-url')?.addEventListener('click', () => ul.querySelector('.url-row')?.remove());
       }
     });
+  },
+
+  // 内置预设：固定指令作为前缀，用户输入保留在后面。
+  applyPromptPreset(presetId) {
+    const ta = $('#paramForm textarea[data-key="prompt"]');
+    if (!ta) return;
+    const preset = PROMPT_PRESETS.find(x => x.id === presetId) || PROMPT_PRESETS[0];
+    const prevBase = this.promptPresetBase[this.currentModelKey] || '';
+    const current = String(ta.value||'').trim();
+    let tail = current;
+    if (prevBase && tail.startsWith(prevBase)) tail = tail.slice(prevBase.length).trimStart();
+    const nextBase = preset.prompt || '';
+    ta.value = nextBase ? (tail ? `${nextBase}\n${tail}` : nextBase) : tail;
+    this.promptPresetBase[this.currentModelKey] = nextBase;
+    this.promptPresetName[this.currentModelKey] = preset.id === 'none' ? '' : preset.name;
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    this.updatePromptPresetHint();
+    this.updateEstimate();
+  },
+
+  updatePromptPresetHint() {
+    const hint = $('#promptPresetHint');
+    if (!hint) return;
+    const name = this.promptPresetName[this.currentModelKey] || '';
+    hint.innerHTML = name ? `当前：<strong>${escapeHtml(name)}</strong> · 可继续补充` : '预设可追加 · 透明背景可补「保留背景」';
   },
 
   // A5: TTS 字数统计
@@ -4251,10 +4461,10 @@ const UI = {
         const arr = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
         if (arr.length > 0) body[p.key] = arr;
       } else if (p.type === 'range') {
-        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        const el = this.getParamElement(grp, p);
         if (el) body[p.key] = Number(el.value);
       } else {
-        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        const el = this.getParamElement(grp, p);
         if (el) {
           let val = el.value.trim();
           if (p.type === 'number' && val !== '') val = Number(val);
@@ -4458,10 +4668,10 @@ const UI = {
         const arr = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
         if (arr.length > 0) val = arr;
       } else if (p.type === 'range') {
-        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        const el = this.getParamElement(grp, p);
         val = Number(el.value);
       } else {
-        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        const el = this.getParamElement(grp, p);
         val = el.value.trim();
         if (p.type === 'number' && val !== '') val = Number(val);
       }
@@ -4491,7 +4701,9 @@ const UI = {
       if ((body.firstFrameUrl || body.lastFrameUrl) && body.urls) errors.push('veo3.1-fast 首尾帧与参考图不可同时使用');
     }
     if (model.id === 'video_omni' && body.video_url && body.sound === 'on') errors.push('有参考视频时，video_omni 的声音必须设为 off');
-    return { body, errors };
+    const strict = normalizeAndValidateApiBody(model, body);
+    errors.push(...strict.errors);
+    return { body: strict.body, errors };
   },
 
   async handleGenerate() {
@@ -4509,6 +4721,16 @@ const UI = {
     $('#generateBtnText').textContent = '处理中…';
     try {
       const { body, errors } = await this.collectParamsAsync();
+      // 双重校验：从当前可见 textarea 重新读取 prompt/text，避免表单重绘或缓存导致误判为空。
+      const promptParam = model.params.find(p => p.key === 'prompt' || p.key === 'text');
+      if (promptParam) {
+        const promptGroup = $('#paramForm .form-group[data-key="' + CSS.escape(promptParam.key) + '"]');
+        const promptEl = promptGroup?.querySelector('textarea');
+        const directPrompt = this.readFieldValue(promptEl);
+        if (directPrompt) body[promptParam.key] = directPrompt;
+        const idx = errors.findIndex(x => String(x).includes(promptParam.label));
+        if (directPrompt && idx >= 0) errors.splice(idx, 1);
+      }
       if (errors.length > 0) {
         Toast.error(errors.join('；'));
         // A4: 滚动到第一个错误字段
@@ -4543,7 +4765,8 @@ const UI = {
           });
           return;
         }
-        const apiId = resp.data?.id;
+        const apiData = typeof resp?.data === 'string' ? (() => { try { return JSON.parse(resp.data); } catch { return null; } })() : resp?.data;
+        const apiId = apiData?.id;
         if (!apiId) { Toast.error('API 未返回任务 ID'); return; }
         Toast.success(`任务已提交，ID：${apiId.slice(0,18)}...`);
         const task = {
@@ -5560,7 +5783,7 @@ const UI = {
 
   async confirmEditor() {
     if (!this.editor.canvas) { Toast.error('画布未就绪'); return; }
-    const prompt = $('#editorPrompt').value.trim();
+    const prompt = String($('#editorPrompt')?.value||'').trim();
     if (!prompt) {
       Toast.warning('请填写修改描述 prompt');
       $('#editorPrompt').focus();
@@ -5856,25 +6079,35 @@ const UI = {
   },
   renderPresets() {
     const sel = $('#presetSelect');
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">载入预设…</option>';
-    Store.getPresets().forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = p.name;
-      sel.appendChild(opt);
-    });
-    // 长按删除（右键也行）
-    sel.oncontextmenu = e => {
-      e.preventDefault();
-      if (sel.value) {
-        if (confirm('删除该预设？')) {
-          Store.deletePreset(sel.value);
-          this.renderPresets();
-          Toast.info('已删除预设');
-        }
-      }
-    };
+    if (!sel) return;
+    const current = sel.value;
+    const custom = Store.getPresets();
+    const builtins = this.currentTab === 'image' ? PROMPT_PRESETS : [];
+    sel.innerHTML = '<option value="">预设…</option>';
+    if (builtins.length) {
+      const og = document.createElement('optgroup');
+      og.label = '内置';
+      builtins.forEach(p => { const o = document.createElement('option'); o.value = 'builtin:' + p.id; o.textContent = p.name; og.appendChild(o); });
+      sel.appendChild(og);
+    }
+    if (custom.length) {
+      const og = document.createElement('optgroup');
+      og.label = '我的预设';
+      custom.forEach(p => { const o = document.createElement('option'); o.value = 'custom:' + p.id; o.textContent = p.name; og.appendChild(o); });
+      sel.appendChild(og);
+    }
+    if (current && Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+    else sel.value = '';
+    sel.title = custom.length ? '内置预设 + 我的预设' : '内置预设';
+  },
+  applyUnifiedPreset(value) {
+    if (!value) return;
+    if (value.startsWith('builtin:')) {
+      this.applyPromptPreset(value.slice(8));
+    } else if (value.startsWith('custom:')) {
+      this.loadPreset(value.slice(7));
+    }
+    setTimeout(() => { const s = $('#presetSelect'); if (s) s.value = ''; }, 0);
   },
   loadPreset(presetId) {
     const p = Store.getPresets().find(x => x.id === presetId);
@@ -5912,6 +6145,10 @@ const UI = {
         if (el) el.value = Array.isArray(v) ? v.join(',') : v;
       }
     });
+    // 自定义预设保存的是最终 prompt，不再自动叠加内置指令。
+    this.promptPresetBase[this.currentModelKey] = '';
+    this.promptPresetName[this.currentModelKey] = '';
+    this.updatePromptPresetHint();
     this.updateEstimate();
     Toast.success(`已载入预设「${p.name}」`);
     $('#presetSelect').value = '';
@@ -6079,6 +6316,41 @@ const UI = {
     }
   },
 
+  // ============ 补充能量 ============
+  // 电脑端展示二维码；移动端优先直接唤起微信，不在页面占用二维码空间。
+  openEnergyPayment() {
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.matchMedia('(max-width: 700px)').matches;
+    if (!isMobile) {
+      this.showEnergyQrModal();
+      return;
+    }
+    let leftPage = false;
+    const onVisibility = () => { if (document.hidden) leftPage = true; };
+    document.addEventListener('visibilitychange', onVisibility, { once: true });
+    const fallbackTimer = setTimeout(() => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (!leftPage) Toast.info('未能自动打开微信，请在微信中打开本页面后再试');
+    }, 1200);
+    try { window.location.href = WECHAT_PAY_URI; } catch (e) {
+      clearTimeout(fallbackTimer);
+      document.removeEventListener('visibilitychange', onVisibility);
+      Toast.info('未能打开微信，请在微信中打开本页面后再试');
+    }
+  },
+
+  showEnergyQrModal() {
+    $('#modalTitle').textContent = '补充能量';
+    $('#modalBody').innerHTML = `
+      <div class="energy-qr-modal">
+        <img class="energy-qr-large" src="${WECHAT_QR_DATA}" alt="微信收款二维码" title="扫码补充能量">
+      </div>
+      <div style="text-align:center;color:var(--text-muted);font-size:12px;margin-top:4px">使用微信扫一扫</div>
+    `;
+    $('#modalFooter').innerHTML = `<button class="action-btn" id="modalCloseFooter">关闭</button>`;
+    $('#modalCloseFooter').onclick = () => this.closeModal();
+    $('#modal').classList.add('show');
+  },
+
   // ============ 消费统计 ============
   showStats() {
     const all = Store.getHistory();
@@ -6108,9 +6380,18 @@ const UI = {
         $$('.stats-range-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         $('#statsContent').innerHTML = this.renderStatsContent(s);
+        this.bindEnergyPayment(); // 统计范围切换会重绘内容，需要重新绑定支付入口
       });
     });
+    this.bindEnergyPayment();
     $('#modal').classList.add('show');
+  },
+
+  bindEnergyPayment() {
+    const energyPayBtn = $('#energyPayBtn');
+    if (energyPayBtn) energyPayBtn.onclick = () => this.openEnergyPayment();
+    const energyQrPreview = $('#energyQrPreview');
+    if (energyQrPreview) energyQrPreview.onclick = () => this.showEnergyQrModal();
   },
 
   calcStats(items, range) {
@@ -6215,6 +6496,18 @@ const UI = {
             </div>`;
           }).join('')
         }
+      </div>
+      <div class="energy-card">
+        <div class="energy-info">
+          <div class="energy-kicker">SUPPORT</div>
+          <h4 class="energy-title">补充能量</h4>
+          <p class="energy-desc">支持微信付款，感谢你的支持。</p>
+          <button class="energy-pay-btn" id="energyPayBtn">微信支付</button>
+          <div class="energy-mobile-note">手机端点击后尝试直接打开微信</div>
+        </div>
+        <div class="energy-qr" id="energyQrPreview" title="微信扫一扫">
+          <img src="${WECHAT_QR_DATA}" alt="微信收款二维码">
+        </div>
       </div>
     `;
   },

@@ -4347,81 +4347,130 @@ setInterval(() => UI.updateTitle(), 1000);
 
 
 // ========== 手机端逻辑 ==========
-// 分段控件插入 app-body 顶部
-const appBody = document.getElementById('appBody');
-const segBar = document.createElement('div');
-segBar.className = 'mobile-segment';
-segBar.innerHTML = '<button class="seg-btn active" data-seg="param">📝 参数</button><button class="seg-btn" data-seg="result">🎯 结果</button>';
-appBody.insertBefore(segBar, appBody.firstChild);
+// 全部放到 DOMContentLoaded 之后执行，确保 DOM 就绪
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. 隐藏闪电图标和品牌文字
+  const brandLogo = document.querySelector('.brand-logo');
+  if (brandLogo) brandLogo.style.display = 'none';
+  const brandName = document.querySelector('.brand-name');
+  if (brandName) brandName.textContent = 'AI 工作台';
 
-// 面板互斥切换
-function switchSeg(seg) {
-  document.querySelectorAll('.seg-btn').forEach(x => {
-    x.classList.toggle('active', x.dataset.seg === seg);
+  // 2. 引导横幅：直接关掉（手机端不需要）
+  const guide = document.getElementById('guideBanner');
+  if (guide) { guide.style.display = 'none'; }
+  const appBody = document.getElementById('appBody');
+  if (appBody) appBody.classList.remove('with-guide');
+  // 引导横幅关闭按钮也绑上
+  const guideClose = document.getElementById('guideClose');
+  if (guideClose) guideClose.addEventListener('click', function() {
+    const g = document.getElementById('guideBanner');
+    if (g) g.style.display = 'none';
+    if (appBody) appBody.classList.remove('with-guide');
   });
-  const pp = document.querySelector('.param-panel');
-  const rp = document.querySelector('.result-panel');
-  if (pp) pp.classList.toggle('m-active', seg === 'param');
-  if (rp) rp.classList.toggle('m-active', seg === 'result');
-}
-document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => switchSeg(b.dataset.seg)));
 
-// 底部 Tab
-document.querySelectorAll('.mobile-tab').forEach(t => {
-  t.addEventListener('click', () => {
-    document.querySelectorAll('.mobile-tab').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    if (window.UI) UI.switchTab(t.dataset.mtab);
+  // 3. 分段控件
+  const segBar = document.createElement('div');
+  segBar.className = 'mobile-segment';
+  segBar.innerHTML = '<button class="seg-btn active" data-seg="param">📝 参数</button><button class="seg-btn" data-seg="result">🎯 结果</button>';
+  if (appBody) appBody.insertBefore(segBar, appBody.firstChild);
+
+  function switchSeg(seg) {
+    document.querySelectorAll('.seg-btn').forEach(function(x) {
+      x.classList.toggle('active', x.dataset.seg === seg);
+    });
+    var pp = document.querySelector('.param-panel');
+    var rp = document.querySelector('.result-panel');
+    if (pp) pp.classList.toggle('m-active', seg === 'param');
+    if (rp) rp.classList.toggle('m-active', seg === 'result');
+  }
+  document.querySelectorAll('.seg-btn').forEach(function(b) {
+    b.addEventListener('click', function() { switchSeg(b.dataset.seg); });
   });
-});
 
-// 设置抽屉
-const msBtn = document.getElementById('mobileSettingsBtn');
-const msOv = document.getElementById('msOverlay');
-const msSh = document.getElementById('msSheet');
-function openSettings() {
-  msOv.classList.add('show'); msSh.classList.add('show');
-  document.getElementById('msApiKey').value = localStorage.getItem('sc_api_key') || '';
-  document.getElementById('msGhToken').value = localStorage.getItem('sc_github_token') || '';
-}
-function closeSettings() { msOv.classList.remove('show'); msSh.classList.remove('show'); }
-msBtn?.addEventListener('click', openSettings);
-document.getElementById('msCloseBtn')?.addEventListener('click', closeSettings);
-msOv?.addEventListener('click', closeSettings);
-document.getElementById('msApiKey')?.addEventListener('input', e => {
-  localStorage.setItem('sc_api_key', e.target.value.trim());
-  const inp = document.getElementById('apiKeyInput'); if (inp) inp.value = e.target.value.trim();
-});
-document.getElementById('msGhToken')?.addEventListener('input', e => {
-  localStorage.setItem('sc_github_token', e.target.value.trim());
-  if (window.CONFIG) CONFIG.GITHUB.TOKEN = e.target.value.trim();
-  const inp = document.getElementById('ghTokenInput'); if (inp) inp.value = e.target.value.trim();
-});
-document.getElementById('msThemeBtn')?.addEventListener('click', () => document.getElementById('themeToggleBtn')?.click());
-document.getElementById('msSoundBtn')?.addEventListener('click', () => document.getElementById('soundToggleBtn')?.click());
-document.getElementById('msStatsBtn')?.addEventListener('click', () => { closeSettings(); if (window.UI) UI.showStats(); });
-document.getElementById('msHistoryBtn')?.addEventListener('click', () => { closeSettings(); if (window.UI) UI.toggleHistory(true); });
+  // 4. 底部 Tab
+  document.querySelectorAll('.mobile-tab').forEach(function(t) {
+    t.addEventListener('click', function() {
+      document.querySelectorAll('.mobile-tab').forEach(function(x) { x.classList.remove('active'); });
+      t.classList.add('active');
+      if (window.UI) UI.switchTab(t.dataset.mtab);
+    });
+  });
 
-// 初始化
-setTimeout(() => {
-  const pp = document.querySelector('.param-panel');
+  // 5. 设置按钮（修复：确保在 DOM 就绪后绑定）
+  var msBtn = document.getElementById('mobileSettingsBtn');
+  var msOv = document.getElementById('msOverlay');
+  var msSh = document.getElementById('msSheet');
+  if (msBtn) {
+    msBtn.addEventListener('click', function() {
+      if (msOv) msOv.classList.add('show');
+      if (msSh) msSh.classList.add('show');
+      var ak = document.getElementById('msApiKey');
+      var gt = document.getElementById('msGhToken');
+      if (ak) ak.value = localStorage.getItem('sc_api_key') || '';
+      if (gt) gt.value = localStorage.getItem('sc_github_token') || '';
+    });
+  }
+  function closeSettings() {
+    if (msOv) msOv.classList.remove('show');
+    if (msSh) msSh.classList.remove('show');
+  }
+  var msClose = document.getElementById('msCloseBtn');
+  if (msClose) msClose.addEventListener('click', closeSettings);
+  if (msOv) msOv.addEventListener('click', closeSettings);
+  var msAk = document.getElementById('msApiKey');
+  if (msAk) msAk.addEventListener('input', function(e) {
+    localStorage.setItem('sc_api_key', e.target.value.trim());
+    var inp = document.getElementById('apiKeyInput');
+    if (inp) inp.value = e.target.value.trim();
+  });
+  var msGt = document.getElementById('msGhToken');
+  if (msGt) msGt.addEventListener('input', function(e) {
+    localStorage.setItem('sc_github_token', e.target.value.trim());
+    if (window.CONFIG) CONFIG.GITHUB.TOKEN = e.target.value.trim();
+    var inp = document.getElementById('ghTokenInput');
+    if (inp) inp.value = e.target.value.trim();
+  });
+  var msT = document.getElementById('msThemeBtn');
+  if (msT) msT.addEventListener('click', function() {
+    var b = document.getElementById('themeToggleBtn'); if (b) b.click();
+  });
+  var msS = document.getElementById('msSoundBtn');
+  if (msS) msS.addEventListener('click', function() {
+    var b = document.getElementById('soundToggleBtn'); if (b) b.click();
+  });
+  var msSt = document.getElementById('msStatsBtn');
+  if (msSt) msSt.addEventListener('click', function() { closeSettings(); if (window.UI) UI.showStats(); });
+  var msH = document.getElementById('msHistoryBtn');
+  if (msH) msH.addEventListener('click', function() { closeSettings(); if (window.UI) UI.toggleHistory(true); });
+
+  // 6. 初始化面板
+  var pp = document.querySelector('.param-panel');
   if (pp) pp.classList.add('m-active');
-}, 100);
 
-// 生成后自动切到结果
-const _origGen = UI.handleGenerate.bind(UI);
-UI.handleGenerate = async function() {
-  await _origGen();
-  setTimeout(() => switchSeg('result'), 500);
-};
+  // 7. 生成后切到结果
+  var origGen = UI.handleGenerate.bind(UI);
+  UI.handleGenerate = async function() {
+    await origGen();
+    setTimeout(function() {
+      document.querySelectorAll('.seg-btn').forEach(function(x) { x.classList.remove('active'); });
+      var rb = document.querySelector('.seg-btn[data-seg="result"]');
+      if (rb) rb.classList.add('active');
+      var p = document.querySelector('.param-panel');
+      var r = document.querySelector('.result-panel');
+      if (p) p.classList.remove('m-active');
+      if (r) r.classList.add('m-active');
+    }, 500);
+  };
 
-// switchTab 同步底部 tab
-const _origSwitch = UI.switchTab.bind(UI);
-UI.switchTab = function(tab) {
-  _origSwitch(tab);
-  document.querySelectorAll('.mobile-tab').forEach(x => x.classList.remove('active'));
-  document.querySelector(`.mobile-tab[data-mtab="${tab}"]`)?.classList.add('active');
-};
+  // 8. switchTab 同步底部 tab
+  var origSwitch = UI.switchTab.bind(UI);
+  UI.switchTab = function(tab) {
+    origSwitch(tab);
+    document.querySelectorAll('.mobile-tab').forEach(function(x) { x.classList.remove('active'); });
+    var at = document.querySelector('.mobile-tab[data-mtab="' + tab + '"]');
+    if (at) at.classList.add('active');
+  };
+});
 </script>
 </body>
 </html>

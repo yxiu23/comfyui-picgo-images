@@ -1,3 +1,4 @@
+<!-- FINAL-RELEASE: 2026-08-30 | API-SCHEMA-v8 | PRESETS-v2 | WORKFLOW-v2 | PAY-v1 -->
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 <head>
@@ -5,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AI 工作台</title>
+<title>AI 工作台 · 手机版</title>
 <style>
 /* ========== 主题变量 ========== */
 :root {
@@ -332,13 +333,33 @@ select { background-image: none; }
 .sbb { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
 .sbf { height: 100%; background: var(--brand); border-radius: 3px; }
 .sbc { font-size: 11px; font-family: monospace; color: var(--success); text-align: right; }
+
+/* ========== V8 移动端工作流优化 ========== */
+.prompt-tools{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.prompt-tools button{padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--text-muted);font-size:11px}
+.prompt-tools .prompt-count{margin-left:auto;font-size:10px;color:var(--text-dim);font-family:monospace}
+.ref-status-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;padding:6px 8px;border-radius:8px;background:var(--surface-2);font-size:10px;color:var(--text-muted)}
+.ref-status-bar .ready{color:var(--success)} .ref-status-bar .pending{color:var(--warning)}
+.task-dock{position:sticky;top:0;z-index:8;display:flex;align-items:center;justify-content:space-between;margin:-2px 0 10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px)}
+.task-dock b{color:var(--brand)}
+.task-dock button{padding:5px 8px;border-radius:7px;background:var(--brand-soft);color:var(--brand);font-size:10px}
+.quick-action-row{display:flex;gap:5px;overflow:auto;margin-bottom:8px}.quick-action-row .act{padding:6px 8px;font-size:10px}
+.energy-mobile-card{display:flex;align-items:center;gap:10px;padding:12px;margin-top:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.energy-mobile-card .ei{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:var(--brand-soft)}
+.energy-mobile-card .ec{flex:1;min-width:0}.energy-mobile-card .et{font-weight:700;font-size:13px}.energy-mobile-card .es{font-size:10px;color:var(--text-dim);margin-top:2px}
+.energy-mobile-card .ep{padding:8px 11px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;font-weight:600}
+.editor-quickdirs{display:flex;gap:4px;align-items:center;margin:6px 0;flex-wrap:wrap}.editor-quickdirs button{width:30px;height:28px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text-muted);font-size:12px}.editor-quickdirs button:active{transform:scale(.95)}
+.mask-preview-row{display:flex;align-items:center;justify-content:space-between;margin:6px 0;padding:6px 8px;background:var(--surface-2);border-radius:8px;font-size:11px;color:var(--text-muted)}
+@supports not (background:color-mix(in srgb,white,black)){.task-dock{background:var(--surface)}}
+
 </style>
+<!-- RELEASE v9.2 MOBILE -->
 </head>
 <body>
 
 <!-- ========== Header ========== -->
 <div class="header">
-  <span class="header-title">AI 工作台</span>
+  <span class="header-title">AI 工作台</span><button class="header-btn" id="mobileTaskDockBtn" aria-label="运行任务">0</button>
   <button class="header-btn" id="settingsBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
@@ -362,12 +383,14 @@ select { background-image: none; }
       <div class="model-meta" id="modelMeta"></div>
     </div>
     <div id="paramForm"></div>
+    <div id="mobilePromptTools"></div>
     <div class="estimate" id="estimate"></div>
     <button class="gen-btn" id="genBtn"><span id="genBtnText">生成</span></button>
   </div>
 
   <!-- 结果视图 -->
   <div class="view" id="resultView">
+    <div class="task-dock" id="mobileTaskDock"><span>运行中 <b id="mobileRunningCount">0</b></span><button type="button" id="mobileTaskRefresh">刷新</button></div>
     <div class="result-list" id="resultList">
       <div class="empty" id="emptyState">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -746,7 +769,14 @@ function normalizeAndValidateApiBody(model, input) {
   const errors = [];
   const has = k => body[k] !== undefined && body[k] !== null && String(body[k]).trim() !== '';
   const add = msg => { if (msg && !errors.includes(msg)) errors.push(msg); };
-  const validUrl = v => /^https?:\/\/\S+$/i.test(String(v || '').trim());
+  const validUrl = v => /^https?:\/\/\S+$/i.test(String(v || '').trim()) && String(v || '').trim().length < 4000;
+  const checkUrlArray = (key, label, max) => {
+    if (!Array.isArray(body[key])) return;
+    const arr = body[key].map(v => String(v || '').trim()).filter(Boolean);
+    if (arr.some(u => !validUrl(u))) add(`${label}包含无效 URL`);
+    if (max != null && arr.length > max) add(`${label}最多 ${max} 个`);
+    body[key] = arr;
+  };
   const splitCsv = v => String(v || '').split(',').map(s => s.trim()).filter(Boolean);
   const checkCsv = (key, label, max) => {
     if (!has(key)) return;
@@ -775,7 +805,7 @@ function normalizeAndValidateApiBody(model, input) {
     case 'nanoBanana2Lite':
       checkEnum('size', '分辨率', model.id === 'nanoBanana2Lite' ? ['1K'] : ['1K','2K','4K']);
       checkEnum('aspectRatio', '比例', ['auto','1:1','16:9','9:16','4:3','3:4','3:2','2:3','5:4','4:5','21:9','1:4','1:8','4:1','8:1']);
-      if (Array.isArray(body.urls) && body.urls.length > (model.id === 'nanoBanana2' || model.id === 'nanoBanana_pro' ? 14 : Infinity)) add('参考图最多 14 张');
+      checkUrlArray('urls', '参考图', model.id === 'nanoBanana2' || model.id === 'nanoBanana_pro' ? 14 : null);
       break;
     case 'gpt-image-2':
       checkEnum('size', '比例', ['auto','1:1','3:2','2:3','16:9','9:16','4:3','3:4','21:9','9:21','1:3','3:1','2:1','1:2']);
@@ -900,6 +930,8 @@ function classifyErr(msg) {
   const raw = String(msg || '');
   const m = raw.toLowerCase();
   if (/no_api_key|密钥|key|auth|401/.test(m)) return { category:'认证', hint: 'API 密钥无效或未填写', action: '检查设置' };
+  if (/429|rate_limited|too many|频繁|限流/.test(m)) return { category:'限流', hint: '请求过于频繁，系统会自动退避，请稍后重试', action: '稍后重试' };
+  if (/invalid_json|不是有效 json|返回.*json/.test(m)) return { category:'服务', hint: '服务返回格式异常，请稍后重试', action: '重试' };
   if (/余额|balance|quota|次数|limit/.test(m)) return { category:'额度', hint: '账户余额、点数或调用额度可能不足', action: '检查速创账户' };
   if (/参数|param|422|400/.test(m)) return { category:'参数', hint: '请检查必填项、URL 格式和模型参数范围', action: '回到参数页' };
   if (/timeout|超时|abort/.test(m)) return { category:'超时', hint: '网络响应时间过长，可稍后重试', action: '重试' };
@@ -963,12 +995,79 @@ const Store = {
 };
 
 // ==================== API ====================
+
+/* ============================================================
+   Strict API Schema Layer v8
+   关键修改：把 16 个模型的提交约束集中在最终请求前校验，
+   避免桌面/手机两端因表单差异产生非法 API body。
+   ============================================================ */
+const API_SCHEMA = {
+  // 仅在官方文档明确给出数量上限时设置 refs，避免客户端凭空收紧 API。
+  nanoBanana2: { prompt:'prompt', refs:{urls:14} },
+  'gpt-image-2': { prompt:'prompt' },
+  nanoBanana_pro: { prompt:'prompt', refs:{urls:14} },
+  nanoBanana2Lite: { prompt:'prompt' },
+  wan3: { prompt:'prompt', refs:{images:10,videos:5,audios:5}, frameExclusive:true },
+  minimax_h3: { prompt:'prompt', refs:{images:9,videos:3,audios:3}, frameExclusive:true },
+  video_upscaling: {},
+  google_omni: { prompt:'prompt', refs:{images:1,videos:1}, fixedDuration:10 },
+  video_vidu: { prompt:'prompt' },
+  video_omni: { prompt:'prompt', soundRule:true },
+  digital_humans: { prompt:'prompt' },
+  video_package: { prompt:'prompt', packageMin:1, packageMax:30 },
+  veo3_fast: { prompt:'prompt', refs:{urls:3}, frameExclusive:true, lastNeedsFirst:true },
+  audio_tts: { text:'text', speed:[0.5,2], vol:[0.1,10] },
+  voice_composite: { text:'text' },
+  voice_clone: { required:['audio_url','text'], optional:['name'] }
+};
+
+function strictNumber(v){
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+function strictArr(v){
+  if (Array.isArray(v)) return v.filter(Boolean);
+  if (typeof v === 'string') return v.split(',').map(s=>s.trim()).filter(Boolean);
+  return [];
+}
+function strictValidateRequest(model, body){
+  // 唯一最终入口：先执行模型细则，再执行 Schema 元数据兜底。
+  const out = normalizeAndValidateApiBody(model, body);
+  const b = out?.body || { ...(body || {}) };
+  const errors = Array.isArray(out?.errors) ? [...out.errors] : [];
+  const add = msg => { if (msg && !errors.includes(msg)) errors.push(msg); };
+  const schema = API_SCHEMA?.[model?.id];
+  const has = k => b[k] !== undefined && b[k] !== null && String(b[k]).trim() !== '';
+  if (schema?.prompt && !has(schema.prompt)) add('提示词不能为空');
+  if (schema?.text && !has(schema.text)) add('文本不能为空');
+  if (Array.isArray(schema?.required)) {
+    schema.required.forEach(k => { if (!has(k)) add(`${k}不能为空`); });
+  }
+  if (schema?.fixedDuration != null) b.duration = String(schema.fixedDuration);
+  return { body:b, errors };
+}
+
+/* API 响应统一解析：兼容文档中的 data:string 与实际示例中的 data:object。 */
+function normalizeApiResponse(payload) {
+  if (!payload || typeof payload !== 'object') return payload;
+  if (typeof payload.data === 'string') {
+    const raw = payload.data.trim();
+    if (raw && (raw.startsWith('{') || raw.startsWith('['))) {
+      try { payload = { ...payload, data: JSON.parse(raw) }; } catch { /* 保留原字符串，交由调用方处理 */ }
+    }
+  }
+  return payload;
+}
+
 const Api = {
   async request(url, options = {}, timeout = CONFIG.REQUEST_TIMEOUT) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
     try { return await fetch(url, { ...options, signal: controller.signal }); }
-    catch (e) { if (e?.name === 'AbortError') throw new Error('REQUEST_TIMEOUT'); throw new Error('NETWORK_OR_CORS'); }
+    catch (e) {
+      if (e?.name === 'AbortError') throw new Error('REQUEST_TIMEOUT');
+      throw new Error('NETWORK_OR_CORS');
+    }
     finally { clearTimeout(timer); }
   },
   async parseJson(r) {
@@ -978,13 +1077,15 @@ const Api = {
     const key = Store.getApiKey(); if (!key) throw new Error('NO_API_KEY');
     const r = await this.request(CONFIG.API_BASE + endpoint, { method:'POST', headers:{ Authorization:key, 'Content-Type':'application/json' }, body:JSON.stringify(body) });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return this.parseJson(r);
+    return normalizeApiResponse(await this.parseJson(r));
   },
   async syncCall(endpoint, body) {
-    const key = Store.getApiKey(); if (!key) throw new Error('NO_API_KEY');
-    const r = await this.request(CONFIG.API_BASE + endpoint, { method:'POST', headers:{ Authorization:key, 'Content-Type':'application/json;charset:utf-8;' }, body:JSON.stringify(body) });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return this.parseJson(r);
+    const key=Store.getApiKey(); if(!key) throw new Error('NO_API_KEY');
+    const r=await this.request(CONFIG.API_BASE+endpoint,{method:'POST',headers:{Authorization:key,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok) throw new Error(`HTTP_${r.status}`);
+    const payload=normalizeApiResponse(await this.parseJson(r));
+    if(payload?.code!=null && Number(payload.code)!==200){ const err=new Error(`API_${payload.code}:${payload.msg||''}`); err.apiCode=Number(payload.code); err.apiMsg=payload.msg||''; throw err; }
+    return payload;
   },
   async queryDetail(id) {
     const key = Store.getApiKey(); if (!key) throw new Error('NO_API_KEY');
@@ -1064,7 +1165,7 @@ class Poller {
         if (Date.now() - st.startAt >= CONFIG.POLL_TIMEOUT) { this.onTimeout(task.id); return; }
         st.netFails = 0; st.rateFails = 0;
         const status = detail?.data?.status;
-        Store.updateTask(task.id, { lastStatus: status });
+        Store.updateTask(task.id, { lastStatus: status, lastQueryAt: Date.now(), phase: this.getPhase(Date.now()-st.startAt).name });
         if (status === 2) {
           const url = Api.extractUrl(detail);
           const elapsed = Date.now() - st.startAt;
@@ -1131,9 +1232,16 @@ class Poller {
       if (s === 2) { const url = Api.extractUrl(d); const now=Date.now(); this.stop(id); Store.updateTask(id,{status:'success',resultUrl:url,rawDetail:d,endTime:now,elapsed:now-(t.startTime||now)}); Store.updateHistory(t.historyId,{status:'success',resultUrl:url,endTime:now,elapsed:now-(t.startTime||now)}); UI.renderResults(); Toast.success(url?'成功':'成功，但未提取到结果URL'); if(url) UI.playSound(); }
       else if (s === 3) { const msg=d?.data?.message||'生成失败'; const now=Date.now(); this.stop(id); Store.updateTask(id,{status:'failed',error:msg,endTime:now}); Store.updateHistory(t.historyId,{status:'failed',error:msg,endTime:now}); UI.renderResults(); Toast.error('生成失败：'+msg); }
       else { Toast.info('仍在生成中'); if (!this.timers[id]) this.start({ id: t.id, apiId: t.apiId, modelName: t.modelName, startTime: t.startTime, historyId: t.historyId }); }
-    } catch (e) { Toast.error('查询失败: ' + e.message); }
+    } catch (e) {
+      if(e.message==='RATE_LIMITED') Toast.warning('查询受限，稍后自动退避重试');
+      else if(e.message==='REQUEST_TIMEOUT') Toast.warning('查询超时，请稍后再次刷新');
+      else if(e.message==='NETWORK_OR_CORS') Toast.error('网络或跨域异常，请检查网络后重试');
+      else if(e.message==='NO_API_KEY') Toast.error('请先填写 API 密钥');
+      else if(String(e.message||'').startsWith('QUERY_API_')) Toast.error('API 查询失败：'+String(e.message).replace(/^QUERY_API_\d+:/,''));
+      else Toast.error('查询失败：'+e.message);
+    }
   }
-  resumeAll() { Store.getTasks().filter(t => t.status === 'running').forEach(t => this.start({ id: t.id, apiId: t.apiId, modelName: t.modelName, startTime: t.startTime, historyId: t.historyId })); }
+  resumeAll() { const now=Date.now(); Store.getTasks().filter(t=>t.status==='running').forEach(t=>{ if(!t.startTime || now-t.startTime>=CONFIG.POLL_TIMEOUT){ this.onTimeout(t.id); return; } this.start({id:t.id,apiId:t.apiId,modelName:t.modelName,startTime:t.startTime,historyId:t.historyId}); }); }
 }
 const poller = new Poller();
 
@@ -1331,8 +1439,8 @@ const UI = {
   },
   readFieldValue(el) {
     if (!el) return '';
-    const value = el.value;
-    return value == null ? '' : String(value).trim();
+    const value = el?.value ?? '';
+    return String(value).trim();
   },
 
   collectParamsSync() {
@@ -1461,6 +1569,10 @@ const UI = {
     btn.disabled=true; $('#genBtnText').textContent='准备中…';
     try {
       const collected=await this.collectParamsAsync();
+      // v8：最终请求前统一 API Schema 校验（移动端）
+      const strictCheck = strictValidateRequest(this.model, collected.body);
+      Object.assign(collected.body, strictCheck.body);
+      collected.errors.push(...strictCheck.errors);
       // 最后一层防护：提交前直接读取当前可见 prompt/text，彻底杜绝“明明填写却判空”。
       const promptParam = this.model.params.find(p => p.key === 'prompt' || p.key === 'text');
       if (promptParam) {
@@ -1550,7 +1662,7 @@ const UI = {
     $$('[data-copy]').forEach(b=>b.onclick=async e=>{ e.stopPropagation(); const ok=await copy(b.dataset.copy); Toast[ok?'success':'error'](ok?'已复制':'复制失败'); });
     $$('[data-preview]').forEach(img=>img.onclick=e=>{ e.stopPropagation(); this.openLightbox(img.dataset.preview); });
     $$('[data-refresh]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); void poller.refresh(b.dataset.refresh); });
-    $$('[data-stop]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); poller.stop(b.dataset.stop); const now=Date.now(); const t=Store.getTasks().find(x=>x.id===b.dataset.stop); Store.updateTask(b.dataset.stop,{status:'stopped',error:'已停止',endTime:now}); if(t) Store.updateHistory(t.historyId,{status:'failed',error:'已停止',endTime:now}); this.renderResults(); });
+    $$('[data-stop]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); poller.stop(b.dataset.stop); const now=Date.now(); const t=Store.getTasks().find(x=>x.id===b.dataset.stop); Store.updateTask(b.dataset.stop,{status:'stopped',error:'已停止',endTime:now}); if(t) Store.updateHistory(t.historyId,{status:'stopped',error:'已停止',endTime:now}); this.renderResults(); });
     $$('[data-edit]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); void this.openEditor(b.dataset.edit); });
     $$('[data-ref]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); this.useAsRef(b.dataset.ref,b.dataset.type); });
     $$('[data-regen]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); this.regen(b.dataset.regen); });
@@ -1754,10 +1866,14 @@ const UI = {
     if(!url) return;
     $('#editor').classList.add('show'); $('#canvasHint').textContent='加载中…'; $('#canvasHint').classList.remove('hide'); $('#editorPrompt').value='';
     this.editor.dirty=false; this.editor.undoStack=[];
-    const img=new Image(); img.crossOrigin='anonymous';
-    img.onload=()=>{ this.editor.img=img; this.editor.origSrc=url; this.initEditorCanvas(); $('#canvasHint').classList.add('hide'); };
-    img.onerror=()=>{ $('#canvasHint').textContent='图片加载失败，可能源站禁止跨域访问'; Toast.error('编辑器无法读取此图片'); };
-    img.src=url;
+    const loadImage=(src,crossOrigin=false)=>new Promise((resolve,reject)=>{ const img=new Image(); if(crossOrigin) img.crossOrigin='anonymous'; img.onload=()=>resolve(img); img.onerror=()=>reject(new Error('IMAGE_LOAD_FAILED')); img.src=src; });
+    (async()=>{
+      try{ const img=await loadImage(url,false); this.editor.img=img; this.editor.origSrc=url; this.editor.imgClean=false; this.initEditorCanvas(); $('#canvasHint').classList.add('hide'); }
+      catch{
+        try{ const proxyUrl='https://images.weserv.nl/?url='+encodeURIComponent(url.replace(/^https?:\/\//,'')); const img=await loadImage(proxyUrl,true); this.editor.img=img; this.editor.origSrc=url; this.editor.imgClean=true; this.initEditorCanvas(); $('#canvasHint').classList.add('hide'); }
+        catch{ $('#canvasHint').textContent='图片加载失败，请先使用公开可访问的图片地址'; Toast.error('编辑器无法读取此图片'); }
+      }
+    })();
   },
   initEditorCanvas() {
     const m = $('#maskCanvas'); const c = m.getContext('2d');
@@ -1837,14 +1953,14 @@ const UI = {
     const tmpM = document.createElement('canvas'); tmpM.width = ow; tmpM.height = oh; tmpM.getContext('2d').drawImage(mc, 0, 0);
     bg.width = nw; bg.height = nh; mc.width = nw; mc.height = nh;
     bc.fillStyle = `rgba(${this.editor.color},${this.editor.opacity})`; bc.fillRect(0, 0, nw, nh);
-    if (this.editor.feather > 0) { const f = this.editor.feather; bc.save(); bc.globalCompositeOperation = 'destination-out';
-      if (top) { const g = bc.createLinearGradient(0,oy-f,0,oy+f); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,1)'); bc.fillStyle=g; bc.fillRect(ox,oy-f,ow,f*2); }
-      if (bot) { const g = bc.createLinearGradient(0,oy+oh-f,0,oy+oh+f); g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(1,'rgba(0,0,0,0)'); bc.fillStyle=g; bc.fillRect(ox,oy+oh-f,ow,f*2); }
-      if (left) { const g = bc.createLinearGradient(ox-f,0,ox+f,0); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,1)'); bc.fillStyle=g; bc.fillRect(ox-f,oy,f*2,oh); }
-      if (right) { const g = bc.createLinearGradient(ox+ow-f,0,ox+ow+f,0); g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(1,'rgba(0,0,0,0)'); bc.fillStyle=g; bc.fillRect(ox+ow-f,oy,f*2,oh); }
+    bc.drawImage(tmpBg,ox,oy);    if (this.editor.feather > 0) { const f = this.editor.feather; bc.save(); bc.globalCompositeOperation = 'source-over';
+      if (top) { const g = bc.createLinearGradient(0,oy-f,0,oy+f); g.addColorStop(0,`rgba(${this.editor.color},0)`); g.addColorStop(1,`rgba(${this.editor.color},${this.editor.opacity})`); bc.fillStyle=g; bc.fillRect(ox,oy-f,ow,f*2); }
+      if (bot) { const g = bc.createLinearGradient(0,oy+oh-f,0,oy+oh+f); g.addColorStop(0,`rgba(${this.editor.color},${this.editor.opacity})`); g.addColorStop(1,`rgba(${this.editor.color},0)`); bc.fillStyle=g; bc.fillRect(ox,oy+oh-f,ow,f*2); }
+      if (left) { const g = bc.createLinearGradient(ox-f,0,ox+f,0); g.addColorStop(0,`rgba(${this.editor.color},0)`); g.addColorStop(1,`rgba(${this.editor.color},${this.editor.opacity})`); bc.fillStyle=g; bc.fillRect(ox-f,oy,f*2,oh); }
+      if (right) { const g = bc.createLinearGradient(ox+ow-f,0,ox+ow+f,0); g.addColorStop(0,`rgba(${this.editor.color},${this.editor.opacity})`); g.addColorStop(1,`rgba(${this.editor.color},0)`); bc.fillStyle=g; bc.fillRect(ox+ow-f,oy,f*2,oh); }
       bc.restore();
     }
-    bc.drawImage(tmpBg,ox,oy); mctx.drawImage(tmpM,ox,oy);
+ mctx.drawImage(tmpM,ox,oy);
     this.editor.dirty=true; this.pushUndo(); Toast.success(`扩展至 ${nw}×${nh}`);
   },
   async confirmEditor() {
@@ -1908,6 +2024,303 @@ const PROMPT_PRESETS = [
 // ==================== 启动 ====================
 document.addEventListener('DOMContentLoaded', () => UI.init());
 setInterval(() => { const r = Store.getTasks().filter(t => t.status === 'running'); document.title = r.length > 0 ? `⏳ ${r.length}个任务` : 'AI 工作台'; }, 1000);
+
+/* ========== V8 移动端工作流优化模块 ========== */
+(function(){
+  const escv = window.esc || (s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])));
+  const PAY_URI='wxp://f2f0bhNf2RE-C229PBeSBM85o3AVfGoHJfCF5uhtlrg7jhA';
+  const qi=(s)=>document.querySelector(s);
+  function updateTaskDock(){
+    const n=Store.getTasks().filter(t=>t.status==='running').length;
+    const b=qi('#mobileRunningCount'), hb=qi('#mobileTaskDockBtn');
+    if(b)b.textContent=n; if(hb){hb.textContent=n>0?String(n):'•'; hb.style.color=n>0?'var(--brand)':'var(--text-dim)';}
+    document.title=n>0?`⏳ ${n}个任务 · AI 工作台`:'AI 工作台 · 手机版';
+  }
+  function addPromptTools(){
+    const host=qi('#mobilePromptTools'); if(!host)return;
+    const ta=qi('#paramForm textarea[data-key="prompt"]');
+    if(!ta){host.innerHTML='';return;}
+    const count=String(ta.value||'').length;
+    host.innerHTML=`<div class="prompt-tools"><button type="button" data-mprompt="recent">最近</button><button type="button" data-mprompt="inspire">灵感</button><button type="button" data-mprompt="copy">复制</button><button type="button" data-mprompt="clear">清空</button><span class="prompt-count">${count}字</span></div>`;
+    ta.oninput=()=>{const c=host.querySelector('.prompt-count');if(c)c.textContent=String(ta.value||'').length+'字';};
+  }
+  const inspirations=['高质感商业摄影，主体清晰，光线自然，细节丰富，构图干净','高级极简视觉，留白充足，材质真实，细节精致','电影感光影，层次分明，色彩自然，画面具有叙事感','电商主视觉，产品突出，背景整洁，商业广告质感','专业棚拍效果，柔和轮廓光，真实材质，高清细节'];
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest('[data-mprompt]'); if(b){
+      const ta=qi('#paramForm textarea[data-key="prompt"],#paramForm textarea[data-key="text"]'); if(!ta)return;
+      const act=b.dataset.mprompt;
+      if(act==='copy'){const ok=await copy(String(ta.value||'')); Toast[ok?'success':'error'](ok?'已复制':'复制失败');}
+      else if(act==='clear'){ta.value='';ta.dispatchEvent(new Event('input',{bubbles:true}));}
+      else if(act==='inspire'){const x=inspirations[Math.floor(Math.random()*inspirations.length)]; ta.value=ta.value.trim()?ta.value.trim()+((/^[^。！？.!?]$/.test(ta.value.slice(-1)))?'':'，')+x:x; ta.dispatchEvent(new Event('input',{bubbles:true})); Toast.success('已加入灵感');}
+      else if(act==='recent'){
+        const h=Store.getPromptHistory?.()||[]; if(h[0]){ta.value=h[0];ta.dispatchEvent(new Event('input',{bubbles:true}));Toast.success('已填入最近提示词');}else Toast.info('暂无最近提示词');
+      }
+      return;
+    }
+    if(e.target.closest('#mobileTaskDockBtn')){ UI.switchView('result'); UI.renderResults(); }
+    if(e.target.closest('#mobileTaskRefresh')){ UI.renderResults(); updateTaskDock(); }
+    const pay=e.target.closest('#mobileWechatPay'); if(pay){
+      pay.disabled=true; pay.textContent='正在打开…';
+      let returned=false;
+      const vis=()=>{ if(document.visibilityState==='hidden') returned=true; };
+      document.addEventListener('visibilitychange',vis,{once:true});
+      window.location.href=PAY_URI;
+      setTimeout(()=>{document.removeEventListener('visibilitychange',vis); if(!returned && document.visibilityState==='visible') Toast.warning('未能打开微信，请在微信中打开本页面后再试'); pay.disabled=false;pay.textContent='微信支付';},1800);
+    }
+    const reuse=e.target.closest('[data-mobile-reuse]'); if(reuse){
+      const h=Store.getHistory().find(x=>x.id===reuse.dataset.mobileReuse); if(h){ UI.switchTab(h.tab); UI.renderForm(h.modelId); UI.reuseHistoryParams?.(h); Toast.success('已恢复参数'); }
+    }
+    const copyParams=e.target.closest('[data-mobile-copyparams]'); if(copyParams){ const h=Store.getHistory().find(x=>x.id===copyParams.dataset.mobileCopyparams); if(h){ copy(JSON.stringify(h.params||{},null,2)).then(ok=>Toast[ok?'success':'error'](ok?'已复制参数':'复制失败')); }}
+    const quickDir=e.target.closest('[data-ed-dir]'); if(quickDir){ const el=qi('#'+quickDir.dataset.edDir); if(el){ el.checked=!el.checked; el.dispatchEvent(new Event('change',{bubbles:true})); quickDir.classList.toggle('active',el.checked); } }
+  });
+
+  // Decorate form rendering without touching the core API collection path.
+  const oldRenderForm=UI.renderForm.bind(UI);
+  UI.renderForm=function(mid){ const r=oldRenderForm(mid); setTimeout(addPromptTools,0); setTimeout(updateRefStatus,0); return r; };
+  function updateRefStatus(){
+    const form=qi('#paramForm'); if(!form)return;
+    form.querySelectorAll('.ref-wrap').forEach(w=>{
+      const key=w.dataset.key||''; const refs=UI.getRefs(key)||[]; const pending=refs.filter(r=>!r.uploaded).length;
+      let bar=w.querySelector('.ref-status-bar'); if(!bar){bar=document.createElement('div');bar.className='ref-status-bar';w.appendChild(bar);}
+      bar.innerHTML=`<span>素材 ${refs.length}</span><span class="${pending?'pending':'ready'}">${pending?pending+' 张待上传':'已就绪'}</span>`;
+    });
+  }
+  const oldRefresh=UI.refreshRefGrid?.bind(UI);
+  if(oldRefresh){UI.refreshRefGrid=function(){const r=oldRefresh(...arguments);setTimeout(updateRefStatus,0);return r;};}
+
+  // Result history quick actions: reuse/copy parameters are intentionally compact.
+  const oldShowHistory=UI.showHistory.bind(UI);
+  UI.showHistory=function(){ const r=oldShowHistory(); setTimeout(()=>{
+    $$('#modalBody [data-hid]').forEach(row=>{
+      const id=row.dataset.hid; if(row.querySelector('[data-mobile-reuse]'))return;
+      const line=row.querySelector('div[style*="margin-top:2px"]'); if(line) line.insertAdjacentHTML('beforeend',` <button class="act" style="font-size:10px;padding:2px 6px" data-mobile-reuse="${escv(id)}">再用</button><button class="act" style="font-size:10px;padding:2px 6px" data-mobile-copyparams="${escv(id)}">复制参数</button>`);
+    });
+  },0); return r; };
+
+  // Stats decoration: mobile keeps the compact no-QR payment UI.
+  const oldShowStats=UI.showStats.bind(UI);
+  UI.showStats=function(){ const r=oldShowStats(); setTimeout(()=>{
+    const body=qi('#modalBody'); if(!body || body.querySelector('#mobileEnergyCard'))return;
+    const el=document.createElement('div'); el.id='mobileEnergyCard'; el.className='energy-mobile-card'; el.innerHTML='<div class="ei">⚡</div><div class="ec"><div class="et">补充能量</div><div class="es">支持微信</div></div><button class="ep" id="mobileWechatPay">微信支付</button>';
+    const sc=body.querySelector('#statsContent'); (sc||body).appendChild(el);
+  },0); return r; };
+
+  // Editor quick controls and mask preview overlay.
+  const oldInitEditor=UI.initEditorCanvas.bind(UI);
+  UI.initEditorCanvas=function(){ const r=oldInitEditor(); setTimeout(()=>{
+    const tools=qi('#editorTools'); if(!tools)return;
+    if(!qi('#editorQuickDirs')){const d=document.createElement('div');d.id='editorQuickDirs';d.className='editor-quickdirs';d.innerHTML='<span style="font-size:10px;color:var(--text-dim);margin-right:2px">扩图</span><button data-ed-dir="dirTop">↑</button><button data-ed-dir="dirLeft">←</button><button data-ed-dir="dirBottom">↓</button><button data-ed-dir="dirRight">→</button>';tools.insertAdjacentElement('afterend',d);}
+    if(!qi('#maskPreviewRow')){const row=document.createElement('div');row.id='maskPreviewRow';row.className='mask-preview-row';row.innerHTML='<span>蒙版预览</span><label style="display:flex;align-items:center;gap:5px"><input id="mobileMaskPreview" type="checkbox" style="width:16px;height:16px;padding:0"> 显示</label>'; const body=qi('.editor-body'); if(body) body.insertBefore(row,body.querySelector('#editorPrompt')||null); const cb=qi('#mobileMaskPreview'); cb?.addEventListener('change',()=>{const c=qi('#maskCanvas'); if(c)c.style.opacity=cb.checked?'0.75':'0';});}
+  },0); return r; };
+
+  setInterval(()=>{updateTaskDock();},1000);
+  window.addEventListener('focus',()=>{updateTaskDock();UI.renderResults();});
+})();
+
+
+
+/* ========== V10 精简稳定性收口：只修实际问题，不新增复杂产品层 ========== */
+(function installLeanHardening(){
+  if (window.__LEAN_HARDENING_V10__) return;
+  window.__LEAN_HARDENING_V10__ = true;
+
+  const jsonNormalize = (payload) => {
+    if (!payload || typeof payload !== 'object') return payload;
+    if (typeof payload.data === 'string') {
+      const raw = payload.data.trim();
+      if (raw && (raw.startsWith('{') || raw.startsWith('['))) {
+        try { return { ...payload, data: JSON.parse(raw) }; } catch (_) {}
+      }
+    }
+    return payload;
+  };
+
+  const readApiError = (payload, prefix='API') => {
+    const p = jsonNormalize(payload);
+    if (p?.code != null && Number(p.code) !== 200) {
+      const e = new Error(`${prefix}_${p.code}:${p.msg || ''}`);
+      e.apiCode = Number(p.code);
+      e.apiMsg = p.msg || '';
+      return e;
+    }
+    return null;
+  };
+
+  // 统一异步提交：HTTP、429、API code、data:string 一次处理。
+  if (window.Api && typeof Api.submit === 'function') {
+    Api.submit = async function(endpoint, body) {
+      const key = (window.Store?.getApiKey ? Store.getApiKey() : '');
+      if (!key) throw new Error('NO_API_KEY');
+      let r;
+      try {
+        r = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, {
+          method:'POST',
+          headers:{ Authorization:key, 'Content-Type':'application/json' },
+          body:JSON.stringify(body)
+        });
+      } catch (e) {
+        if (e?.message === 'REQUEST_TIMEOUT') throw e;
+        throw new Error('NETWORK_OR_CORS');
+      }
+      if (r.status === 429) {
+        const e = new Error('RATE_LIMITED');
+        e.retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10) || 0;
+        throw e;
+      }
+      if (!r.ok) throw new Error(`HTTP_${r.status}`);
+      let payload;
+      try { payload = jsonNormalize(await r.json()); }
+      catch { throw new Error('INVALID_JSON'); }
+      const apiErr = readApiError(payload, 'API');
+      if (apiErr) throw apiErr;
+      return payload;
+    };
+  }
+
+  // 同步接口与异步接口使用完全一致的错误语义。
+  if (window.Api && typeof Api.syncCall === 'function') {
+    Api.syncCall = async function(endpoint, body) {
+      const key = (window.Store?.getApiKey ? Store.getApiKey() : '');
+      if (!key) throw new Error('NO_API_KEY');
+      let r;
+      try {
+        r = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, {
+          method:'POST',
+          headers:{ Authorization:key, 'Content-Type':'application/json' },
+          body:JSON.stringify(body)
+        });
+      } catch (e) {
+        if (e?.message === 'REQUEST_TIMEOUT') throw e;
+        throw new Error('NETWORK_OR_CORS');
+      }
+      if (r.status === 429) {
+        const e = new Error('RATE_LIMITED');
+        e.retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10) || 0;
+        throw e;
+      }
+      if (!r.ok) throw new Error(`HTTP_${r.status}`);
+      let payload;
+      try { payload = jsonNormalize(await r.json()); }
+      catch { throw new Error('INVALID_JSON'); }
+      const apiErr = readApiError(payload, 'API');
+      if (apiErr) throw apiErr;
+      return payload;
+    };
+  }
+
+  // 查询接口统一兼容 data:string，并保留限流与 API 错误码。
+  if (window.Api && typeof Api.queryDetail === 'function') {
+    Api.queryDetail = async function(id) {
+      const key = (window.Store?.getApiKey ? Store.getApiKey() : '');
+      if (!key) throw new Error('NO_API_KEY');
+      let r;
+      try {
+        r = await this.fetchWithTimeout(
+          `${CONFIG.API_BASE}${CONFIG.DETAIL_PATH}?id=${encodeURIComponent(id)}`,
+          { method:'GET', headers:{Authorization:key,'Content-Type':'application/json'}, cache:'no-store' }
+        );
+      } catch (e) {
+        if (e?.message === 'REQUEST_TIMEOUT') throw e;
+        throw new Error('NETWORK_OR_CORS');
+      }
+      if (r.status === 429) {
+        const e = new Error('RATE_LIMITED');
+        e.retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10) || 0;
+        throw e;
+      }
+      if (!r.ok) throw new Error(`QUERY_HTTP_${r.status}`);
+      let payload;
+      try { payload = jsonNormalize(await r.json()); }
+      catch { throw new Error('INVALID_JSON'); }
+      const apiErr = readApiError(payload, 'QUERY_API');
+      if (apiErr) throw apiErr;
+      return payload;
+    };
+  }
+
+  // 移动端“刷新”按钮真正查询运行任务，而不是仅重绘页面。
+  if (typeof poller !== 'undefined' && poller && typeof poller.refresh === 'function') {
+    const btn = document.getElementById('mobileTaskRefresh');
+    if (btn && !btn.dataset.queryBound) {
+      btn.dataset.queryBound = '1';
+      btn.addEventListener('click', async (ev) => {
+        ev.stopPropagation();
+        const running = Store.getTasks().filter(t => t.status === 'running' && t.apiId);
+        if (!running.length) { Toast.info('当前没有运行中的任务'); return; }
+        btn.disabled = true;
+        const old = btn.textContent;
+        btn.textContent = '查询中…';
+        try { await Promise.allSettled(running.map(t => poller.refresh(t.id))); }
+        finally { btn.disabled = false; btn.textContent = old; UI.renderResults(); }
+      }, true);
+    }
+  }
+
+  // 移动端历史“再用参数”：真正恢复当时的模型与字段，不依赖不存在的旧扩展方法。
+  if (window.UI && !UI.reuseHistoryParams) {
+    UI.reuseHistoryParams = function(h) {
+      if (!h) return;
+      const tab = h.tab || (h.type === 'image' ? 'image' : h.type === 'video' ? 'video' : 'audio');
+      if (typeof this.switchTab === 'function') this.switchTab(tab);
+      if (h.modelId && typeof this.renderForm === 'function') this.renderForm(h.modelId);
+      const model = this.model || this.currentModel;
+      const params = h.params || {};
+      const form = document.getElementById('paramForm');
+      if (!form || !model?.params) return;
+      for (const p of model.params) {
+        if (!(p.key in params)) continue;
+        const g = form.querySelector(`.form-group[data-key="${CSS.escape(p.key)}"]`);
+        if (!g) continue;
+        const v = params[p.key];
+        if (p.type === 'ref-image') {
+          const refs = Array.isArray(v) ? v : String(v || '').split(',').map(s=>s.trim()).filter(Boolean);
+          if (typeof this.setRefs === 'function') {
+            this.setRefs(p.key, refs.map(u => typeof u === 'object' ? u : ({id:'r_'+Math.random().toString(36).slice(2),kind:'url',src:u,uploaded:true,remote:u,name:'历史参考'})));
+            this.refreshRefGrid?.(p.key);
+          }
+        } else if (p.type === 'range') {
+          const el = g.querySelector(`[data-key="${CSS.escape(p.key)}"]`);
+          if (el) { el.value = v; el.dispatchEvent(new Event('input',{bubbles:true})); }
+        } else {
+          const el = g.querySelector(`[data-key="${CSS.escape(p.key)}"]`);
+          if (el) { el.value = Array.isArray(v) ? v.join(',') : String(v ?? ''); el.dispatchEvent(new Event('input',{bubbles:true})); }
+        }
+      }
+      this.updateEstimate?.();
+    };
+  }
+
+  // 移动端 Prompt 工具同时支持 prompt / text（例如 TTS）。
+  const mobilePromptHost = document.getElementById('mobilePromptTools');
+  if (mobilePromptHost && typeof window.addPromptTools === 'function') {
+    // 保持已有函数，不重复绑定事件；这里只标记可扩展入口。
+    mobilePromptHost.dataset.hardened = '1';
+  }
+
+  // 所有上传参考素材至少在最终提交前再次检查公网 URL，避免 blob/file 直接进入 API。
+  if (window.normalizeAndValidateApiBody && !window.__hardeningBodyCheck__) {
+    window.__hardeningBodyCheck__ = true;
+    const originalValidate = window.normalizeAndValidateApiBody;
+    window.normalizeAndValidateApiBody = function(model, input) {
+      const out = originalValidate(model, input);
+      const body = out?.body || (input ? {...input} : {});
+      const errors = Array.isArray(out?.errors) ? [...out.errors] : [];
+      const urlKeys = ['urls','images','videos','audios','subjects','image_url','first_frame','last_frame','firstFrameUrl','lastFrameUrl','video_url','video','audio_url','audioUrl','videoUrl'];
+      const values = key => Array.isArray(body[key]) ? body[key] : (typeof body[key] === 'string' && body[key].includes(',') ? body[key].split(',').map(s=>s.trim()).filter(Boolean) : [body[key]]);
+      for (const key of urlKeys) {
+        if (body[key] == null || body[key] === '') continue;
+        for (const v of values(key)) {
+          if (!v) continue;
+          if (typeof v === 'string' && /^(blob:|data:|file:)/i.test(v)) {
+            if (!errors.some(e=>String(e).includes(key))) errors.push(`${key} 必须是公网 URL`);
+          }
+        }
+      }
+      return { body, errors };
+    };
+  }
+})();
+
 </script>
 </body>
 </html>

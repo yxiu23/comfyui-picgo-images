@@ -2,76 +2,22 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="theme-color" content="#0a0e18">
-<meta name="color-scheme" content="dark light">
 <title>AI 多媒体生成工作台</title>
 <style>
-  :root{--bg:#0a0e18;--text:#e9edf8;--muted:#9aa5c0;--brand:#3b6ef5;--brand-hover:#2f5bd9;--border:rgba(148,163,209,.14);--surface:#111726}
-  *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif}
-  body{display:grid;place-items:center;padding:24px}
-  main{width:min(560px,100%);text-align:center}
-  .logo{width:52px;height:52px;margin:0 auto 16px;border-radius:14px;background:var(--brand);display:grid;place-items:center;color:#fff;font-weight:700;font-size:21px;box-shadow:0 8px 26px rgba(59,110,245,.24)}
-  h1{margin:0;font-size:22px;line-height:1.3}
-  p{margin:8px 0 0;color:var(--muted);font-size:13px}
-  .loading{margin:22px auto 0;width:180px;height:4px;border-radius:99px;background:rgba(148,163,209,.12);overflow:hidden}
-  .loading::after{content:"";display:block;width:42%;height:100%;background:var(--brand);animation:move 1.2s ease-in-out infinite}
-  @keyframes move{0%{transform:translateX(-110%)}100%{transform:translateX(350%)}}
-  .actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:20px}
-  a{display:inline-flex;align-items:center;justify-content:center;min-width:110px;padding:9px 14px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);text-decoration:none;font-size:13px;transition:.18s ease}
-  a:hover{border-color:var(--brand);color:#fff;transform:translateY(-1px)}
-  a.primary{background:var(--brand);border-color:var(--brand);color:#fff}
-  a.primary:hover{background:var(--brand-hover)}
-  noscript .actions{margin-top:16px}
-  @media (prefers-reduced-motion:reduce){.loading::after,a{animation:none;transition:none}}
+html,body{height:100%;margin:0}body{display:grid;place-items:center;background:#0a0e18;color:#9aa5c0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.box{text-align:center;padding:28px}.spinner{width:24px;height:24px;margin:0 auto 12px;border:3px solid rgba(59,110,245,.22);border-top-color:#3b6ef5;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}a{color:#3b6ef5;text-decoration:none;margin:0 8px}p{margin:6px 0}
 </style>
 <script>
-(function () {
-  'use strict';
-
-  // 关键修复：使用 pointer/触控能力 + viewport 宽度综合判断，避免仅依赖 UA 或 screen.width。
-  var mobile = /android|iphone|ipad|ipod|windows phone|mobile/i.test(navigator.userAgent || '');
-  var touch = navigator.maxTouchPoints > 0;
-  var width = Math.min(window.innerWidth || 0, document.documentElement.clientWidth || Infinity);
-  var isMobile = mobile || (touch && width > 0 && width < 900) || width < 768;
-
-  // 关键修复：replace() 不把入口页写进历史记录，避免点击返回后再次触发跳转循环。
-  var target = isMobile ? 'ai-workbench-mobile.html' : 'ai-multimedia-workbench.html';
-  var linkId = isMobile ? 'mobile-link' : 'desktop-link';
-
-  function go() {
-    try { window.location.replace(target); }
-    catch (e) { window.location.href = target; }
-  }
-
-  // 短暂延迟让手动入口可点击，同时避免页面完全白屏；正常情况立即跳转。
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', go, { once: true });
-  } else {
-    go();
-  }
-
-  window.addEventListener('error', function () {
-    var link = document.getElementById(linkId);
-    if (link) link.focus();
-  }, { once: true });
+(function(){
+  var mobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  var narrow=Math.min(window.innerWidth||9999,document.documentElement.clientWidth||9999)<768;
+  var target=(mobile||narrow)?'ai-workbench-mobile-final.html':'ai-multimedia-workbench-final.html';
+  window.location.replace(target);
 })();
 </script>
 </head>
 <body>
-<main aria-live="polite">
-  <div class="logo" aria-hidden="true">AI</div>
-  <h1>AI 多媒体生成工作台</h1>
-  <p>正在根据设备自动打开对应版本…</p>
-  <div class="loading" aria-hidden="true"></div>
-  <div class="actions">
-    <a id="desktop-link" class="primary" href="ai-multimedia-workbench.html">打开电脑版</a>
-    <a id="mobile-link" href="ai-workbench-mobile.html">打开手机版</a>
-  </div>
-  <noscript>
-    <p>浏览器未启用 JavaScript，请手动选择版本。</p>
-  </noscript>
-</main>
+<div class="box"><div class="spinner"></div><p>正在进入工作台…</p><p><a href="ai-multimedia-workbench-final.html">电脑版</a>·<a href="ai-workbench-mobile-final.html">手机版</a></p></div>
 </body>
 </html>

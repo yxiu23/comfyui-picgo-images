@@ -1864,14 +1864,6 @@ select option { background: var(--bg-elev); color: var(--text); }
   .tool-group { padding-right: 6px; }
 }
 
-/* ============ 补充能量：统计页支付卡片 ============ */
-.energy-card{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);display:flex;align-items:center;justify-content:space-between;gap:18px;overflow:hidden;}
-.energy-info{min-width:0;flex:1}.energy-kicker{font-size:11px;color:var(--brand-1);font-weight:700;letter-spacing:.06em;margin-bottom:5px}.energy-title{font-size:16px;font-weight:700;color:var(--text);margin:0 0 5px}.energy-desc{font-size:12px;color:var(--text-muted);line-height:1.6;margin:0}.energy-pay-btn{margin-top:12px;padding:8px 14px;border-radius:10px;background:var(--brand-1);color:#fff;font-size:12px;font-weight:600;transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease}.energy-pay-btn:hover{box-shadow:0 6px 18px rgba(59,110,245,.18);transform:translateY(-1px)}.energy-pay-btn:active{transform:scale(.97)}
-.energy-qr{width:132px;height:132px;flex:0 0 132px;background:#fff;border-radius:12px;padding:8px;box-sizing:border-box;cursor:zoom-in;box-shadow:0 3px 16px rgba(0,0,0,.08)}.energy-qr img{display:block;width:100%;height:100%;image-rendering:pixelated}.energy-mobile-note{display:none;font-size:11px;color:var(--text-dim);margin-top:8px}
-.energy-qr-modal{display:flex;justify-content:center;align-items:center;padding:8px}.energy-qr-large{width:min(72vw,360px);height:min(72vw,360px);background:#fff;padding:14px;border-radius:16px;box-sizing:border-box;image-rendering:pixelated}
-@media(max-width:700px){.energy-card{padding:14px}.energy-qr{display:none}.energy-desc{font-size:11px}.energy-mobile-note{display:block}.energy-pay-btn{width:100%}}
-@media(max-width:460px){.energy-card{display:block}.energy-qr{display:none}.energy-pay-btn{margin-top:10px}}
-
 /* 消费统计 */
 .stats-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
 .stats-range-btn {
@@ -2561,9 +2553,6 @@ button:active:not(:disabled), .action-btn:active:not(:disabled) { transform: sca
 /* ============================================================
    配置
    ============================================================ */
-const WECHAT_PAY_URI = 'wxp://f2f0bhNf2RE-C229PBeSBM85o3AVfGoHJfCF5uhtlrg7jhA';
-const WECHAT_QR_DATA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADAUlEQVR4nO2cTY7jIBCFXw2WssQ3yFHgZrmaOUpugJctYb1ZFPgnvRj1ZMZOnPKiFdv51IVUol49IEL8+Eq/fs4ABhlkkEEGGWTQOSGpVwekfhIAk0jEpE+BsX0hHhKeQftDgSSZAWDsIBEAUu/IQd87kiS30H7hGbQ/NM4TgN5eCGAShOw0D3QGOSo8gw6EfAHStaBND//vPxn0ilD3+CBkUABA6stJvlkWLz4mg/4F5KmaQaSHTg8kCyTCUWK7PSw8g/aGkoiI9ADCvYPc7h0kqpgAgKXrOCY8g/auGktdYLp+CTECTL0DUw8B/LZwvPiYDHoGgnaVgQUc4PSTvhj8XCZ80e/pNbz4mAx6BmoZkR2bUnBs9kTzI0KG5otlxPkhrJynkOdkIKl9qPoRviaNvrWMODPUqkGuZaK2GRnQPNAmpP2xjDg/pMpSwkAIcCHgMyQMpWticuqIsSsCf0B4Bu0ObRSjr7Wiiko/y4rcJKfNEaeHmo5oDlX1rvW2KstFVpiy/CwoLL3GXaTOEb7oWjlCru7lW43JoL+DyLuIxLFDywMSIQMI9wuXBdCDwjPoCMhpXZAIYFkcl4hJ2lLoZC72B0CzZ0kCcLXTXLtW1a3QjtSU5emhJhbVcSjNikAtE9WpzE7fWkacH9p6ls2mogqHmgcrc8p6jdNDq7VPWS9xVs1QXav5K2HYNzyDDoJE+qluub5lYJGSHHyB3O7bXZhvMSaDnpojUrwQ6Vo6AI4C7yhBJ4epQ7oSkvq8f3gG7Q6t90ewNRerla6wURmmLM8Prdc1OLegZNlIzs0ny4gPgJYzXSS/ZLPF0hFQM5PtQM9bjMmgp6DQaoVuv03XAmjDsVoFBSQeE55B++uIDN0vVf0IzrtjmldlfsSHQI8neCTkCcDYzx5FBlMEYL3GZ0CPGcEkjgI4rRNLWug5L3OoTg+tK4R2nxm109RruzHfqsanQPOZLon6oK2CDuOFumOm/rDEIeEZtB/0/Zjvny/7ZTKDDDLIIIMMMggAfgPsyVnBnGk1FgAAAABJRU5ErkJggg==';
-
 const CONFIG = {
   API_BASE: 'https://api.wuyinkeji.com',
   DETAIL_PATH: '/api/async/detail',
@@ -6316,41 +6305,6 @@ const UI = {
     }
   },
 
-  // ============ 补充能量 ============
-  // 电脑端展示二维码；移动端优先直接唤起微信，不在页面占用二维码空间。
-  openEnergyPayment() {
-    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.matchMedia('(max-width: 700px)').matches;
-    if (!isMobile) {
-      this.showEnergyQrModal();
-      return;
-    }
-    let leftPage = false;
-    const onVisibility = () => { if (document.hidden) leftPage = true; };
-    document.addEventListener('visibilitychange', onVisibility, { once: true });
-    const fallbackTimer = setTimeout(() => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      if (!leftPage) Toast.info('未能自动打开微信，请在微信中打开本页面后再试');
-    }, 1200);
-    try { window.location.href = WECHAT_PAY_URI; } catch (e) {
-      clearTimeout(fallbackTimer);
-      document.removeEventListener('visibilitychange', onVisibility);
-      Toast.info('未能打开微信，请在微信中打开本页面后再试');
-    }
-  },
-
-  showEnergyQrModal() {
-    $('#modalTitle').textContent = '补充能量';
-    $('#modalBody').innerHTML = `
-      <div class="energy-qr-modal">
-        <img class="energy-qr-large" src="${WECHAT_QR_DATA}" alt="微信收款二维码" title="扫码补充能量">
-      </div>
-      <div style="text-align:center;color:var(--text-muted);font-size:12px;margin-top:4px">使用微信扫一扫</div>
-    `;
-    $('#modalFooter').innerHTML = `<button class="action-btn" id="modalCloseFooter">关闭</button>`;
-    $('#modalCloseFooter').onclick = () => this.closeModal();
-    $('#modal').classList.add('show');
-  },
-
   // ============ 消费统计 ============
   showStats() {
     const all = Store.getHistory();
@@ -6380,18 +6334,9 @@ const UI = {
         $$('.stats-range-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         $('#statsContent').innerHTML = this.renderStatsContent(s);
-        this.bindEnergyPayment(); // 统计范围切换会重绘内容，需要重新绑定支付入口
       });
     });
-    this.bindEnergyPayment();
     $('#modal').classList.add('show');
-  },
-
-  bindEnergyPayment() {
-    const energyPayBtn = $('#energyPayBtn');
-    if (energyPayBtn) energyPayBtn.onclick = () => this.openEnergyPayment();
-    const energyQrPreview = $('#energyQrPreview');
-    if (energyQrPreview) energyQrPreview.onclick = () => this.showEnergyQrModal();
   },
 
   calcStats(items, range) {
@@ -6496,18 +6441,6 @@ const UI = {
             </div>`;
           }).join('')
         }
-      </div>
-      <div class="energy-card">
-        <div class="energy-info">
-          <div class="energy-kicker">SUPPORT</div>
-          <h4 class="energy-title">补充能量</h4>
-          <p class="energy-desc">支持微信付款，感谢你的支持。</p>
-          <button class="energy-pay-btn" id="energyPayBtn">微信支付</button>
-          <div class="energy-mobile-note">手机端点击后尝试直接打开微信</div>
-        </div>
-        <div class="energy-qr" id="energyQrPreview" title="微信扫一扫">
-          <img src="${WECHAT_QR_DATA}" alt="微信收款二维码">
-        </div>
       </div>
     `;
   },

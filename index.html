@@ -1,10 +1,10 @@
-<!-- AI 多媒体生成工作台 · 速创 API · v6.0 (撤销修复扩图 + 编辑结果填入当前选定模型) -->
+<!-- AI 多媒体生成工作台 · 速创 API · v6.1 (撤销修复扩图 + 编辑结果填入当前选定模型) -->
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 多媒体生成工作台 v6.0 · 速创 API</title>
+<title>AI 多媒体生成工作台 v6.1 · 速创 API</title>
 <style>
 /* ============================================================
    主题变量
@@ -1934,14 +1934,16 @@ select option { background: var(--bg-elev); color: var(--text); }
   }
   .mobile-settings-btn svg { width: 18px; height: 18px; }
 
-  /* ========== 分段控件（参数⇄结果） ========== */
+  /* ========== 分段控件（参数⇄结果）固定在顶部下方 ========== */
   .mobile-segment {
+    position: sticky;
+    top: 0;
     display: flex;
-    background: var(--surface-2);
-    border-radius: 8px;
-    padding: 2px;
-    margin: 0 12px;
-    gap: 2px;
+    background: var(--bg-elev);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 12px;
+    gap: 4px;
+    z-index: 10;
   }
   .mobile-segment-btn {
     flex: 1;
@@ -1985,7 +1987,8 @@ select option { background: var(--bg-elev); color: var(--text); }
 
   /* ========== 参数面板适配 ========== */
   .param-content { padding: 12px; }
-  .tabs { padding: 8px 12px; gap: 4px; }
+  /* 手机端隐藏顶部图片/视频/音频tab（用底部Tab Bar替代） */
+  .tabs { display: none; }
   .tab { padding: 8px; font-size: 12px; border-radius: 999px; }
   .form-group { margin-bottom: 12px; }
   .form-group label { font-size: 12px; }
@@ -2236,6 +2239,11 @@ select option { background: var(--bg-elev); color: var(--text); }
 
 <!-- ============== 主体 ============== -->
 <div class="app-body" id="appBody">
+  <!-- 手机端分段控件（固定在顶部下方） -->
+  <div class="mobile-segment mobile-only" id="mobileSegment">
+    <button class="mobile-segment-btn active" data-seg="param">📝 参数</button>
+    <button class="mobile-segment-btn" data-seg="result">🎯 结果</button>
+  </div>
   <!-- 左侧：参数面板 -->
   <aside class="param-panel">
     <div class="tabs">
@@ -2326,12 +2334,6 @@ select option { background: var(--bg-elev); color: var(--text); }
   </main>
 </div>
 
-<!-- ============== 手机端分段控件 ============== -->
-<div class="mobile-segment mobile-only" id="mobileSegment">
-  <button class="mobile-segment-btn active" data-seg="param">参数</button>
-  <button class="mobile-segment-btn" data-seg="result">结果</button>
-</div>
-
 <!-- ============== 手机端底部 Tab Bar ============== -->
 <div class="mobile-tab-bar" id="mobileTabBar">
   <button class="mobile-tab active" data-mtab="image">
@@ -2397,7 +2399,7 @@ select option { background: var(--bg-elev); color: var(--text); }
       <input type="file" id="importHistoryInput" accept=".json,application/json" style="display:none">
       <button class="hf-action danger" id="clearHistoryBtn">清空</button>
     </div>
-    <span class="hf-meta">v6.0 · localStorage · 上限 500 条</span>
+    <span class="hf-meta">v6.1 · localStorage · 上限 500 条</span>
   </div>
 </aside>
 
@@ -3705,7 +3707,11 @@ const UI = {
 
     $('#generateBtn').addEventListener('click', () => this.handleGenerate());
     $('#modelSelect').addEventListener('change', e => {
+      // 保存旧模型参数
+      this.saveFormToCache();
       this.renderParamForm(e.target.value);
+      // 恢复新模型缓存参数
+      this.restoreFormFromCache();
       this.updateEstimate();
     });
 
@@ -3968,6 +3974,8 @@ const UI = {
   },
 
   switchTab(tab) {
+    // 保存当前表单参数到缓存
+    this.saveFormToCache();
     this.currentTab = tab;
     $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
     const sel = $('#modelSelect');
@@ -3978,7 +3986,81 @@ const UI = {
       opt.textContent = `${m.name} · ${m.price}`;
       sel.appendChild(opt);
     });
+    // 恢复上次选中的模型
+    const savedModelId = this.formCache[tab + '_model'];
+    if (savedModelId && MODELS[tab].find(m => m.id === savedModelId)) {
+      sel.value = savedModelId;
+    }
     this.renderParamForm(sel.value);
+    this.restoreFormFromCache();
+    this.updateEstimate();
+    $$('.mobile-tab').forEach(x => x.classList.remove('active'));
+    $$(`.mobile-tab[data-mtab="${tab}"]`).forEach(x => x.classList.add('active'));
+  },
+
+  // 表单参数缓存（切换模型/Tab时保留）
+  formCache: {},
+
+  // 保存当前表单到缓存
+  saveFormToCache() {
+    if (!this.currentModel) return;
+    const key = this.currentTab + '_' + this.currentModel.id;
+    const params = {};
+    const form = $('#paramForm');
+    if (!form) return;
+    this.currentModel.params.forEach(p => {
+      const grp = form.querySelector(`.form-group[data-key="${p.key}"]`);
+      if (!grp) return;
+      if (p.type === 'ref-image') {
+        const refs = this.getRefs(p.key);
+        if (refs.length > 0) params[p.key] = refs;
+      } else if (p.type === 'range') {
+        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        if (el) params[p.key] = el.value;
+      } else {
+        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        if (el) params[p.key] = el.value;
+      }
+    });
+    this.formCache[key] = params;
+    this.formCache[this.currentTab + '_model'] = this.currentModel.id;
+  },
+
+  // 从缓存恢复表单参数
+  restoreFormFromCache() {
+    if (!this.currentModel) return;
+    const key = this.currentTab + '_' + this.currentModel.id;
+    const saved = this.formCache[key];
+    if (!saved) return;
+    const form = $('#paramForm');
+    if (!form) return;
+    this.currentModel.params.forEach(p => {
+      const grp = form.querySelector(`.form-group[data-key="${p.key}"]`);
+      if (!grp || saved[p.key] === undefined) return;
+      if (p.type === 'ref-image') {
+        // ref-image 需要手动恢复
+        const refs = saved[p.key];
+        if (Array.isArray(refs)) {
+          refs.forEach(r => {
+            if (r.kind === 'url') this.addUrlRef(r.src, p.key);
+            else if (r.kind === 'local') this.addLocalRef(r.src, r.name, p.key);
+          });
+        }
+      } else if (p.type === 'range') {
+        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        if (el) {
+          el.value = saved[p.key];
+          const rv = $('#rv-' + p.key);
+          if (rv) {
+            const unit = rv.dataset.unit || '';
+            rv.textContent = el.value + unit;
+          }
+        }
+      } else {
+        const el = grp.querySelector(`[data-key="${p.key}"]`);
+        if (el) el.value = saved[p.key];
+      }
+    });
     this.updateEstimate();
   },
 

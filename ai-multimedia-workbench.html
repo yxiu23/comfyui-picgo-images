@@ -1,10 +1,10 @@
-<!-- AI 多媒体生成工作台 · 速创 API · v6.3 (撤销修复扩图 + 编辑结果填入当前选定模型) -->
+<!-- AI 多媒体生成工作台 · 速创 API · v6.4 (全量稳定性修复 + 交互优化) -->
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 多媒体生成工作台 v6.3 · 速创 API</title>
+<title>AI 多媒体生成工作台 v6.4 · 速创 API</title>
 <style>
 /* ============================================================
    主题变量
@@ -26,8 +26,9 @@
   --brand-active: #2646b8;/* 点击色 */
   --brand-soft: rgba(59,110,245,.12);
   --brand-soft-2: rgba(59,110,245,.08);
-  --brand-grad: linear-gradient(135deg, var(--brand-1) 0%, #5b85f7 100%);
-  --brand-grad-h: linear-gradient(135deg, var(--brand-hover) 0%, #4a78ef 100%);
+  /* 品牌统一使用素雅单色蓝，不使用渐变 */
+  --brand-grad: var(--brand-1);
+  --brand-grad-h: var(--brand-hover);
 }
 [data-theme="dark"] {
   --bg: #0a0e18;
@@ -37,14 +38,14 @@
   --border: rgba(148,163,209,.14);
   --border-soft: rgba(148,163,209,.08);
   --border-hover: rgba(148,163,209,.3);
+  --brand-2: #3b6ef5; --brand-3: #3b6ef5;
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.28);
   --text: #e9edf8;
   --text-muted: #9aa5c0;
   --text-dim: #5f6b8a;
   --overlay: rgba(0,0,0,.6);
   --glass-blur: blur(12px);
-  --bg-gradient:
-    radial-gradient(1100px 560px at 82% -12%, rgba(59,110,245,.12), transparent 62%),
-    radial-gradient(900px 480px at -8% 4%, rgba(59,110,245,.06), transparent 55%);
+  --bg-gradient: var(--bg);
 }
 [data-theme="light"] {
   --bg: #f6f7fb;
@@ -54,14 +55,14 @@
   --border: #e3e6ee;
   --border-soft: #eef0f5;
   --border-hover: #c8cedd;
+  --brand-2: #3b6ef5; --brand-3: #3b6ef5;
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.16);
   --text: #1c1f26;
   --text-muted: #5a6172;
   --text-dim: #8b91a0;
   --overlay: rgba(0,0,0,.45);
   --glass-blur: blur(8px);
-  --bg-gradient:
-    radial-gradient(1100px 560px at 82% -12%, rgba(59,110,245,.06), transparent 62%),
-    radial-gradient(900px 480px at -8% 4%, rgba(59,110,245,.04), transparent 55%);
+  --bg-gradient: var(--bg);
 }
 
 /* ============================================================
@@ -106,7 +107,7 @@ textarea { resize: vertical; min-height: 80px; font-family: inherit; }
    首次使用引导横幅（E1）
    ============================================================ */
 .guide-banner {
-  background: linear-gradient(90deg, var(--brand-soft), var(--brand-soft-2));
+  background: var(--brand-soft);
   border-bottom: 1px solid var(--border);
   padding: 8px 16px;
   display: none;
@@ -2174,6 +2175,16 @@ select option { background: var(--bg-elev); color: var(--text); }
   .mobile-tab-bar { display: none; }
   .mobile-settings-btn { display: none; }
 }
+
+/* 统一过渡与按压反馈；减少动画时尊重系统 prefers-reduced-motion */
+html, body, button, input, textarea, select, .app-header, .param-panel,
+.result-header, .task-card, .result-card, .active-tasks-panel,
+.history-sidebar, .modal-content, .mobile-settings-sheet { transition: background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+button, .action-btn, .header-btn, .tab, .preset-btn, .load-more-btn,
+.ref-toolbar button, .tool-btn, .size-btn, .color-btn, .filter-tab,
+.history-filter-tab, .clear-screen-btn { transition: transform .12s ease, background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+button:active:not(:disabled), .action-btn:active:not(:disabled) { transform: scale(.98); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
@@ -2318,6 +2329,7 @@ select option { background: var(--bg-elev); color: var(--text); }
           <button class="filter-tab" data-filter="failed">失败</button>
           <button class="filter-tab" data-filter="timeout">超时</button>
         </div>
+        <button class="clear-screen-btn" id="restoreScreenBtn" title="重新显示已清屏任务">↺ 恢复显示</button>
         <button class="clear-screen-btn" id="clearScreenBtn" title="清空当前结果区显示（历史记录仍保留）">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/></svg>
           清屏
@@ -2399,7 +2411,7 @@ select option { background: var(--bg-elev); color: var(--text); }
       <input type="file" id="importHistoryInput" accept=".json,application/json" style="display:none">
       <button class="hf-action danger" id="clearHistoryBtn">清空</button>
     </div>
-    <span class="hf-meta">v6.3 · localStorage · 上限 500 条</span>
+    <span class="hf-meta">v6.4 · localStorage · 上限 500 条</span>
   </div>
 </aside>
 
@@ -2938,7 +2950,7 @@ function classifyError(errMsg) {
   if (/参数|param|invalid|required/.test(msg)) {
     return { type: 'param', hint: '参数格式错误，请检查必填项与格式', fixLabel: '查看参数', fixAction: 'show-detail' };
   }
-  if (/网络|network|timeout|fetch|cors/.test(msg)) {
+  if (/超时|request_timeout|network|timeout|fetch|cors|网络/.test(msg)) {
     return { type: 'network', hint: '网络异常或浏览器跨域限制，建议用 Chrome 带 --disable-web-security 启动', fixLabel: '查看 CORS 解决方案', fixAction: 'show-cors-help' };
   }
   if (/nsfw|敏感|违规|content/.test(msg)) {
@@ -2987,102 +2999,66 @@ const Toast = {
 /* ============================================================
    存储层
    ============================================================ */
+/* 统一安全存储：Safari 隐私模式 / 配额不足时不阻塞应用 */
+const SafeStorage = {
+  get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
+  set(key, value) { try { localStorage.setItem(key, String(value)); return true; } catch (e) { try { Toast?.error?.('本地存储失败：' + (e?.message || '浏览器拒绝写入')); } catch {} return false; } },
+  remove(key) { try { localStorage.removeItem(key); return true; } catch { return false; } },
+  jsonGet(key, fallback) { const raw = this.get(key, null); if (raw == null || raw === '') return fallback; try { const v = JSON.parse(raw); return v ?? fallback; } catch { return fallback; } },
+  jsonSet(key, value) { try { return this.set(key, JSON.stringify(value)); } catch { return false; } }
+};
+
 const Store = {
-  getApiKey() { return localStorage.getItem(CONFIG.STORAGE_KEYS.API_KEY) || ''; },
-  setApiKey(k) { localStorage.setItem(CONFIG.STORAGE_KEYS.API_KEY, k); },
-  clearApiKey() { localStorage.removeItem(CONFIG.STORAGE_KEYS.API_KEY); },
+  getApiKey() { return SafeStorage.get(CONFIG.STORAGE_KEYS.API_KEY, '') || ''; },
+  setApiKey(k) { SafeStorage.set(CONFIG.STORAGE_KEYS.API_KEY, String(k || '')); },
+  clearApiKey() { SafeStorage.remove(CONFIG.STORAGE_KEYS.API_KEY); },
   getTheme() {
-    const saved = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
-    if (saved) return saved;
-    // E6: 首次跟随系统
+    const saved = SafeStorage.get(CONFIG.STORAGE_KEYS.THEME, '');
+    if (saved === 'light' || saved === 'dark') return saved;
     return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   },
-  setTheme(t) { localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, t); },
-  getSoundEnabled() { return localStorage.getItem(CONFIG.STORAGE_KEYS.SOUND) !== 'false'; }, // 默认开
-  setSoundEnabled(v) { localStorage.setItem(CONFIG.STORAGE_KEYS.SOUND, v ? 'true' : 'false'); },
-  isGuideDismissed() { return localStorage.getItem(CONFIG.STORAGE_KEYS.GUIDE_DISMISSED) === 'true'; },
-  dismissGuide() { localStorage.setItem(CONFIG.STORAGE_KEYS.GUIDE_DISMISSED, 'true'); },
-  getGithubToken() { return localStorage.getItem(CONFIG.STORAGE_KEYS.GH_TOKEN) || ''; },
-  setGithubToken(t) { localStorage.setItem(CONFIG.STORAGE_KEYS.GH_TOKEN, t); CONFIG.GITHUB.TOKEN = t; },
-  clearGithubToken() { localStorage.removeItem(CONFIG.STORAGE_KEYS.GH_TOKEN); CONFIG.GITHUB.TOKEN = ''; },
+  setTheme(t) { SafeStorage.set(CONFIG.STORAGE_KEYS.THEME, t); },
+  getSoundEnabled() { return SafeStorage.get(CONFIG.STORAGE_KEYS.SOUND, 'true') !== 'false'; },
+  setSoundEnabled(v) { SafeStorage.set(CONFIG.STORAGE_KEYS.SOUND, v ? 'true' : 'false'); },
+  isGuideDismissed() { return SafeStorage.get(CONFIG.STORAGE_KEYS.GUIDE_DISMISSED, 'false') === 'true'; },
+  dismissGuide() { SafeStorage.set(CONFIG.STORAGE_KEYS.GUIDE_DISMISSED, 'true'); },
+  getGithubToken() { return SafeStorage.get(CONFIG.STORAGE_KEYS.GH_TOKEN, '') || ''; },
+  setGithubToken(t) { const v = String(t || ''); SafeStorage.set(CONFIG.STORAGE_KEYS.GH_TOKEN, v); CONFIG.GITHUB.TOKEN = v; },
+  clearGithubToken() { SafeStorage.remove(CONFIG.STORAGE_KEYS.GH_TOKEN); CONFIG.GITHUB.TOKEN = ''; },
 
-  getHistory() {
-    try { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.HISTORY) || '[]'); }
-    catch { return []; }
-  },
-  saveHistory(arr) {
-    try { localStorage.setItem(CONFIG.STORAGE_KEYS.HISTORY, JSON.stringify(arr)); }
-    catch (e) { Toast.error('历史存储失败：' + e.message); }
-  },
-  addHistory(item) {
-    const arr = this.getHistory();
-    arr.unshift(item);
-    if (arr.length > 500) arr.length = 500;
-    this.saveHistory(arr);
-  },
-  updateHistory(id, patch) {
-    const arr = this.getHistory();
-    const idx = arr.findIndex(x => x.id === id);
-    if (idx >= 0) { Object.assign(arr[idx], patch); this.saveHistory(arr); }
-  },
-  deleteHistory(id) { this.saveHistory(this.getHistory().filter(x => x.id !== id)); },
-  clearHistory() { this.saveHistory([]); },
+  getHistory() { return SafeStorage.jsonGet(CONFIG.STORAGE_KEYS.HISTORY, []); },
+  saveHistory(arr) { return SafeStorage.jsonSet(CONFIG.STORAGE_KEYS.HISTORY, arr); },
+  addHistory(item) { const arr = this.getHistory(); arr.unshift(item); if (arr.length > 500) arr.length = 500; return this.saveHistory(arr); },
+  updateHistory(id, patch) { const arr = this.getHistory(); const idx = arr.findIndex(x => x.id === id); if (idx >= 0) { Object.assign(arr[idx], patch); return this.saveHistory(arr); } return false; },
+  deleteHistory(id) { return this.saveHistory(this.getHistory().filter(x => x.id !== id)); },
+  clearHistory() { return this.saveHistory([]); },
 
-  getTasks() {
-    try { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.TASKS) || '[]'); }
-    catch { return []; }
-  },
-  saveTasks(arr) {
-    try { localStorage.setItem(CONFIG.STORAGE_KEYS.TASKS, JSON.stringify(arr)); }
-    catch (e) { Toast.error('任务存储失败：' + e.message); }
-  },
-  addTask(t) {
-    const arr = this.getTasks();
-    arr.unshift(t);
-    this.saveTasks(arr);
-  },
-  updateTask(id, patch) {
-    const arr = this.getTasks();
-    const idx = arr.findIndex(x => x.id === id);
-    if (idx >= 0) { Object.assign(arr[idx], patch); this.saveTasks(arr); }
-  },
-  deleteTask(id) { this.saveTasks(this.getTasks().filter(x => x.id !== id)); },
+  getTasks() { return SafeStorage.jsonGet(CONFIG.STORAGE_KEYS.TASKS, []); },
+  saveTasks(arr) { return SafeStorage.jsonSet(CONFIG.STORAGE_KEYS.TASKS, arr); },
+  addTask(t) { const arr = this.getTasks(); arr.unshift(t); return this.saveTasks(arr); },
+  updateTask(id, patch) { const arr = this.getTasks(); const idx = arr.findIndex(x => x.id === id); if (idx >= 0) { Object.assign(arr[idx], patch); return this.saveTasks(arr); } return false; },
+  deleteTask(id) { return this.saveTasks(this.getTasks().filter(x => x.id !== id)); },
 
-  // prompt 历史（A2）
-  getPromptHistory() {
-    try { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.PROMPT_HISTORY) || '[]'); }
-    catch { return []; }
-  },
-  addPromptHistory(text) {
-    if (!text || text.trim().length < 2) return;
-    const arr = this.getPromptHistory().filter(p => p !== text);
-    arr.unshift(text);
-    if (arr.length > 20) arr.length = 20;
-    localStorage.setItem(CONFIG.STORAGE_KEYS.PROMPT_HISTORY, JSON.stringify(arr));
-  },
+  getPromptHistory() { return SafeStorage.jsonGet(CONFIG.STORAGE_KEYS.PROMPT_HISTORY, []); },
+  addPromptHistory(text) { if (!text || text.trim().length < 2) return; const arr = this.getPromptHistory().filter(p => p !== text); arr.unshift(text); if (arr.length > 20) arr.length = 20; SafeStorage.jsonSet(CONFIG.STORAGE_KEYS.PROMPT_HISTORY, arr); },
 
-  // 参数预设（A3）
-  getPresets() {
-    try { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.PRESETS) || '[]'); }
-    catch { return []; }
-  },
-  savePreset(name, tab, modelId, params) {
-    const arr = this.getPresets();
-    const id = 'p_' + Date.now().toString(36);
-    arr.push({ id, name, tab, modelId, params, createdAt: Date.now() });
-    if (arr.length > 50) arr.length = 50;
-    localStorage.setItem(CONFIG.STORAGE_KEYS.PRESETS, JSON.stringify(arr));
-    return id;
-  },
-  deletePreset(id) {
-    localStorage.setItem(CONFIG.STORAGE_KEYS.PRESETS, JSON.stringify(this.getPresets().filter(p => p.id !== id)));
-  }
+  getPresets() { return SafeStorage.jsonGet(CONFIG.STORAGE_KEYS.PRESETS, []); },
+  savePreset(name, tab, modelId, params) { const arr = this.getPresets(); const id = 'p_' + Date.now().toString(36); arr.push({ id, name, tab, modelId, params, createdAt: Date.now() }); if (arr.length > 50) arr.length = 50; return SafeStorage.jsonSet(CONFIG.STORAGE_KEYS.PRESETS, arr) ? id : null; },
+  deletePreset(id) { return SafeStorage.jsonSet(CONFIG.STORAGE_KEYS.PRESETS, this.getPresets().filter(p => p.id !== id)); }
 };
 
 /* ============================================================
    API 层
    ============================================================ */
 const Api = {
+  REQUEST_TIMEOUT: 45000,
+  async fetchWithTimeout(url, options = {}, timeout = this.REQUEST_TIMEOUT) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try { return await fetch(url, { ...options, signal: controller.signal }); }
+    catch (e) { if (e?.name === 'AbortError') throw new Error('REQUEST_TIMEOUT'); throw e; }
+    finally { clearTimeout(timer); }
+  },
   _headers(contentType = 'application/json') {
     const key = Store.getApiKey();
     const h = { Authorization: key };
@@ -3095,7 +3071,7 @@ const Api = {
     if (!key) throw new Error('NO_API_KEY');
     let resp;
     try {
-      resp = await fetch(CONFIG.API_BASE + endpoint, {
+      resp = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, {
         method: 'POST',
         headers: this._headers(),
         body: JSON.stringify(body)
@@ -3105,7 +3081,7 @@ const Api = {
       throw new Error('NETWORK_OR_CORS');
     }
     if (!resp.ok) throw new Error(`网络异常 ${resp.status}`);
-    return await resp.json();
+    try { return await resp.json(); } catch { throw new Error('API 返回不是有效 JSON'); }
   },
 
   async syncCall(endpoint, body) {
@@ -3113,7 +3089,7 @@ const Api = {
     if (!key) throw new Error('NO_API_KEY');
     let resp;
     try {
-      resp = await fetch(CONFIG.API_BASE + endpoint, {
+      resp = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, {
         method: 'POST',
         headers: this._headers('application/json;charset:utf-8;'),
         body: JSON.stringify(body)
@@ -3122,7 +3098,7 @@ const Api = {
       throw new Error('NETWORK_OR_CORS');
     }
     if (!resp.ok) throw new Error(`网络异常 ${resp.status}`);
-    return await resp.json();
+    try { return await resp.json(); } catch { throw new Error('API 返回不是有效 JSON'); }
   },
 
   async queryDetail(id) {
@@ -3131,7 +3107,7 @@ const Api = {
     const url = `${CONFIG.API_BASE}${CONFIG.DETAIL_PATH}?id=${encodeURIComponent(id)}`;
     let resp;
     try {
-      resp = await fetch(url, {
+      resp = await this.fetchWithTimeout(url, {
         method: 'GET',
         headers: { Authorization: key, 'Content-Type': 'application/json' },
         cache: 'no-store'
@@ -3146,7 +3122,7 @@ const Api = {
       throw err;
     }
     if (!resp.ok) throw new Error(`查询失败 ${resp.status}`);
-    return await resp.json();
+    try { return await resp.json(); } catch { throw new Error('查询接口返回不是有效 JSON'); }
   },
 
   extractResultUrl(detail) {
@@ -3286,7 +3262,7 @@ const Api = {
     const url = `https://api.github.com/repos/${CONFIG.GITHUB.REPO}/contents/${path}`;
     let resp;
     try {
-      resp = await fetch(url, {
+      resp = await this.fetchWithTimeout(url, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${CONFIG.GITHUB.TOKEN}`,
@@ -3381,6 +3357,8 @@ class PollManager {
       st.count++;
       try {
         const detail = await Api.queryDetail(task.apiId);
+        // 修复竞态：用户手动停止轮询后，已在途请求返回也不能把 stopped 状态覆盖成 success/failed
+        if (st.stopped) return;
         st.netFails = 0;
         const status = detail?.data?.status;
         const message = detail?.data?.message;
@@ -3449,13 +3427,14 @@ class PollManager {
           Toast.error('请先填写有效的 API 密钥');
           return;
         }
-        if (e.message === 'NETWORK_OR_CORS') {
-          // E2: CORS 专门提示
+        if (e.message === 'NETWORK_OR_CORS' || e.message === 'REQUEST_TIMEOUT') {
+          // 网络 / 超时统一转成用户可操作的失败状态
           this.stop(task.id);
-          Store.updateTask(task.id, { status: 'failed', error: '网络/CORS 错误', endTime: Date.now() });
-          Store.updateHistory(task.historyId, { status: 'failed', error: '网络/CORS 错误', endTime: Date.now() });
+          const errText = e.message === 'REQUEST_TIMEOUT' ? '请求超时' : '网络/CORS 错误'; Store.updateTask(task.id, { status: 'failed', error: errText, endTime: Date.now() });
+          Store.updateHistory(task.historyId, { status: 'failed', error: errText, endTime: Date.now() });
           UI.renderTaskList(); UI.renderHistory(); UI.updateTitle();
-          UI.showCorsError();
+          if (e.message === 'REQUEST_TIMEOUT') Toast.error('查询请求超时，建议稍后点击「手动刷新」');
+          else UI.showCorsError();
           return;
         }
         if (st.netFails >= CONFIG.POLL_FAIL_LIMIT) {
@@ -3548,6 +3527,7 @@ class PollManager {
       }
     } catch (e) {
       if (e.message === 'NETWORK_OR_CORS') UI.showCorsError();
+      else if (e.message === 'REQUEST_TIMEOUT') Toast.error('查询请求超时，请稍后再次点击「手动刷新」');
       else Toast.error('查询失败：' + e.message);
     }
   }
@@ -3586,6 +3566,9 @@ const UI = {
     this.applyTheme(Store.getTheme());
     this.applySoundIcon(Store.getSoundEnabled());
     $('#apiKeyInput').value = Store.getApiKey();
+    $('#ghTokenInput').value = Store.getGithubToken();
+    $('#mobileApiKey').value = Store.getApiKey();
+    $('#mobileGhToken').value = Store.getGithubToken();
     this.switchTab('image');
     this.renderHistory();
     this.renderTaskList();
@@ -3704,6 +3687,7 @@ const UI = {
     }));
     // 清屏：清空当前结果区显示（任务数据仍在，仅不显示；进行中任务会继续轮询）
     $('#clearScreenBtn').addEventListener('click', () => this.clearScreen());
+    $('#restoreScreenBtn').addEventListener('click', () => this.restoreScreen());
 
     $('#generateBtn').addEventListener('click', () => this.handleGenerate());
     $('#modelSelect').addEventListener('change', e => {
@@ -3804,7 +3788,8 @@ const UI = {
       };
       Toast.success('上传成功，URL 已显示');
     } catch (e) {
-      Toast.error('上传失败：' + e.message);
+      if (e.message === 'NETWORK_OR_CORS' || e.message === 'REQUEST_TIMEOUT') this.showCorsError();
+      else Toast.error('上传失败：' + e.message);
     }
     $('#uploadInput').value = '';
   },
@@ -3820,7 +3805,7 @@ const UI = {
     try {
       // 用 detail 接口随便查一个不存在的 id，只要不报 401/403 即视为密钥有效
       const url = `${CONFIG.API_BASE}${CONFIG.DETAIL_PATH}?id=test_${Date.now()}`;
-      const resp = await fetch(url, { method: 'GET', headers: { Authorization: key }, cache: 'no-store' });
+      const resp = await Api.fetchWithTimeout(url, { method: 'GET', headers: { Authorization: key }, cache: 'no-store' });
       const json = await resp.json();
       // 200 或 业务错误（如"任务不存在"）都说明密钥通过了鉴权
       if (resp.status === 200 || (json && json.code !== 401 && json.code !== 403)) {
@@ -3835,8 +3820,9 @@ const UI = {
     } catch (e) {
       btn.classList.add('fail');
       btn.textContent = '✗ 错误';
-      if (e.message === 'NETWORK_OR_CORS' || e instanceof TypeError) {
-        UI.showCorsError();
+      if (e.message === 'NETWORK_OR_CORS' || e.message === 'REQUEST_TIMEOUT' || e instanceof TypeError) {
+        if (e.message === 'REQUEST_TIMEOUT') Toast.error('密钥测试请求超时');
+        else UI.showCorsError();
       } else {
         Toast.error('测试失败：' + e.message);
       }
@@ -3929,21 +3915,24 @@ const UI = {
     if (!document.hidden && document.hasFocus()) return;
     // 首次使用需请求权限
     if (Notification.permission === 'default') {
-      Notification.requestPermission();
-      // 权限未授予时不发，下次再请求
-      if (Notification.permission === 'default') return;
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') this.notifyTaskComplete(modelName, isFailed, errMsg);
+      }).catch(() => {});
+      return;
     }
     if (Notification.permission !== 'granted') return;
     const title = isFailed ? `❌ ${modelName} 生成失败` : `✅ ${modelName} 生成成功`;
     const body = isFailed ? (errMsg || '请查看详情') : '点击切回工作台查看';
-    const n = new Notification(title, {
-      body,
-      icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ctext y=".9em" font-size="90"%3E%E2%9A%A1%3C/text%3E%3C/svg%3E',
-      tag: 'ai-workbench-task',
-      renotify: true
-    });
-    n.onclick = () => { window.focus(); n.close(); };
-    setTimeout(() => n.close(), 5000);
+    try {
+      const n = new Notification(title, {
+        body,
+        icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ctext y=".9em" font-size="90"%3E%E2%9A%A1%3C/text%3E%3C/svg%3E',
+        tag: 'ai-workbench-task',
+        renotify: true
+      });
+      n.onclick = () => { try { window.focus(); } catch {} n.close(); };
+      setTimeout(() => n.close(), 5000);
+    } catch {}
   },
 
   // B3: 动态 title
@@ -4038,14 +4027,17 @@ const UI = {
       const grp = form.querySelector(`.form-group[data-key="${p.key}"]`);
       if (!grp || saved[p.key] === undefined) return;
       if (p.type === 'ref-image') {
-        // ref-image 需要手动恢复
-        const refs = saved[p.key];
-        if (Array.isArray(refs)) {
-          refs.forEach(r => {
-            if (r.kind === 'url') this.addUrlRef(r.src, p.key);
-            else if (r.kind === 'local') this.addLocalRef(r.src, r.name, p.key);
-          });
-        }
+        // 修复：替换当前模型的参考图状态，避免切回模型时重复叠加
+        const refs = Array.isArray(saved[p.key]) ? saved[p.key] : [];
+        this.refState[this.currentModelKey][p.key] = refs.map(r => ({
+          id: r.id || ('r_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6)),
+          kind: r.kind === 'url' ? 'url' : 'local',
+          src: r.src || r.remote || '',
+          name: r.name || '参考图',
+          uploaded: r.kind === 'url' ? true : !!r.uploaded,
+          remote: r.remote || (r.kind === 'url' ? r.src : null)
+        })).filter(r => r.src || r.remote);
+        this.renderRefGrid(p.key);
       } else if (p.type === 'range') {
         const el = grp.querySelector(`[data-key="${p.key}"]`);
         if (el) {
@@ -4189,11 +4181,15 @@ const UI = {
         });
       }
     });
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.prompt-history-wrap')) {
-        $$('.prompt-history-list').forEach(l => l.classList.remove('show'));
-      }
-    }, { once: true });
+    // 修复：只绑定一次全局点击监听，避免每次重绘参数表单不断累加监听器
+    if (!this._promptHistoryDocBound) {
+      this._promptHistoryDocBound = true;
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.prompt-history-wrap') && !e.target.closest('.prompt-history-btn')) {
+          $$('.prompt-history-list').forEach(l => l.classList.remove('show'));
+        }
+      });
+    }
 
     // url-list
     $$('.url-list', form).forEach(ul => {
@@ -4451,6 +4447,7 @@ const UI = {
     const form = $('#paramForm');
     for (const p of model.params) {
       const grp = form.querySelector(`.form-group[data-key="${p.key}"]`);
+      if (!grp) { if (p.required) errors.push(`${p.label}字段缺失`); continue; }
       let val = null;
       if (p.type === 'ref-image') {
         const r = await this.collectRefImage(p);
@@ -4468,8 +4465,15 @@ const UI = {
         val = el.value.trim();
         if (p.type === 'number' && val !== '') val = Number(val);
       }
-      if (p.required && (val == null || val === '' || (Array.isArray(val) && val.length === 0))) {
-        errors.push(p.label);
+      let fieldError = '';
+      if (p.required && (val == null || val === '' || (Array.isArray(val) && val.length === 0))) fieldError = `${p.label}为必填项`;
+      if (!fieldError && p.type === 'range' && !Number.isFinite(val)) fieldError = `${p.label}不是有效数值`;
+      if (!fieldError && p.type === 'number' && val !== '' && !Number.isFinite(val)) fieldError = `${p.label}不是有效数值`;
+      if (!fieldError && p.type === 'number' && Number.isFinite(val) && ((p.min != null && val < p.min) || (p.max != null && val > p.max))) fieldError = `${p.label}应在 ${p.min}～${p.max} 范围内`;
+      if (!fieldError && p.type === 'url' && val && !/^https?:\/\//i.test(val)) fieldError = `${p.label}需要以 http:// 或 https:// 开头`;
+      if (!fieldError && p.type === 'url-list' && Array.isArray(val) && val.some(u => !/^https?:\/\//i.test(u))) fieldError = `${p.label}包含无效 URL`;
+      if (fieldError) {
+        errors.push(fieldError);
         grp.classList.add('error');
       } else {
         grp.classList.remove('error');
@@ -4478,6 +4482,15 @@ const UI = {
         }
       }
     }
+    if ((model.id === 'wan3' || model.id === 'minimax_h3') && (body.first_frame || body.last_frame)) {
+      if (body.images || body.videos || body.audios) errors.push('首/尾帧模式不能同时搭配参考图片、参考视频或参考音频');
+      if (body.last_frame && !body.first_frame) errors.push('尾帧需要搭配首帧');
+    }
+    if (model.id === 'veo3_fast') {
+      if (body.lastFrameUrl && !body.firstFrameUrl) errors.push('veo3.1-fast 尾帧需要搭配首帧');
+      if ((body.firstFrameUrl || body.lastFrameUrl) && body.urls) errors.push('veo3.1-fast 首尾帧与参考图不可同时使用');
+    }
+    if (model.id === 'video_omni' && body.video_url && body.sound === 'on') errors.push('有参考视频时，video_omni 的声音必须设为 off');
     return { body, errors };
   },
 
@@ -4519,6 +4532,7 @@ const UI = {
         catch (e) {
           if (e.message === 'NO_API_KEY') Toast.error('请先填写有效的 API 密钥');
           else if (e.message === 'NETWORK_OR_CORS') this.showCorsError();
+          else if (e.message === 'REQUEST_TIMEOUT') Toast.error('提交请求超时，请稍后重试');
           else Toast.error('提交失败：' + e.message);
           return;
         }
@@ -4537,7 +4551,7 @@ const UI = {
           tab: this.currentTab, modelId: model.id, modelName: model.name,
           endpoint: model.endpoint, resultType: model.resultType,
           params: body, prompt: summary, fullPrompt: promptVal,
-          status: 'running', startTime: now, async: true, createdAt: now
+          status: 'running', startTime: now, async: true, createdAt: now, screenHidden: false
         };
         Store.addTask(task);
         Store.addHistory({
@@ -4558,7 +4572,7 @@ const UI = {
           id: taskId, historyId,
           tab: this.currentTab, modelId: model.id, modelName: model.name,
           resultType: model.resultType, params: body, prompt: summary, fullPrompt: promptVal,
-          status: 'running', startTime: now, async: false, createdAt: now
+          status: 'running', startTime: now, async: false, createdAt: now, screenHidden: false
         };
         Store.addTask(tmpTask);
         Store.addHistory({
@@ -4619,6 +4633,7 @@ const UI = {
       if (!p) return;
       if (p.type === 'ref-image') {
         const urls = Array.isArray(v) ? v : (typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean) : []);
+        this.refState[this.currentModelKey][k] = [];
         urls.forEach(url => this.addUrlRef(url, k));
       } else if (p.type === 'url-list' && Array.isArray(v)) {
         const ul = grp.querySelector('.url-list');
@@ -4655,7 +4670,7 @@ const UI = {
 
   renderTaskList() {
     const list = $('#resultList');
-    let tasks = Store.getTasks();
+    let tasks = Store.getTasks().filter(t => !t.screenHidden);
     if (this.filter !== 'all') tasks = tasks.filter(t => t.status === this.filter);
     $('#resultCount').textContent = tasks.length;
     // 并行任务面板
@@ -5077,7 +5092,7 @@ const UI = {
       let blob = null;
       for (const src of candidates) {
         try {
-          const resp = await fetch(src, { mode: 'cors', credentials: 'omit' });
+          const resp = await Api.fetchWithTimeout(src, { mode: 'cors', credentials: 'omit' }, 30000);
           if (!resp.ok) continue;
           const b = await resp.blob();
           if (b && b.size > 0 && !b.type.includes('text')) { blob = b; break; }
@@ -5689,7 +5704,7 @@ const UI = {
     ];
     for (const fetchUrl of candidates) {
       try {
-        const resp = await fetch(fetchUrl, { mode: 'cors', credentials: 'omit' });
+        const resp = await Api.fetchWithTimeout(fetchUrl, { mode: 'cors', credentials: 'omit' }, 30000);
         if (!resp.ok) continue;
         const blob = await resp.blob();
         if (!blob || blob.size === 0) continue;
@@ -5764,17 +5779,29 @@ const UI = {
   // 清屏：清空结果区显示，任务数据保留在 localStorage/历史中
   clearScreen() {
     const tasks = Store.getTasks();
-    if (tasks.length === 0) { Toast.info('结果区已经是空的'); return; }
-    const running = tasks.filter(t => t.status === 'running');
-    let msg = `清空结果区显示？共 ${tasks.length} 条任务`;
-    if (running.length > 0) msg += `（其中 ${running.length} 个进行中的任务会继续后台轮询，结果在历史记录查看）`;
-    msg += `\n\n历史记录仍完整保留，可随时从右上角「历史」查看。`;
+    const visible = tasks.filter(t => !t.screenHidden);
+    if (visible.length === 0) { Toast.info('结果区已经是空的'); return; }
+    const running = visible.filter(t => t.status === 'running');
+    let msg = `清空当前结果区显示？共 ${visible.length} 条`;
+    if (running.length > 0) msg += `（${running.length} 个进行中任务会继续后台轮询）`;
+    msg += `\n\n历史记录、任务数据均保留。`;
     if (!confirm(msg)) return;
-    Store.saveTasks([]);
+    // 修复关键 bug：不删除任务，只标记 screenHidden；轮询器可继续通过任务 ID 查询
+    const hiddenIds = new Set(visible.map(t => t.id));
+    Store.saveTasks(tasks.map(t => hiddenIds.has(t.id) ? { ...t, screenHidden: true } : t));
     this.page = 20;
     this.renderTaskList();
     this.renderActiveTasksPanel();
-    Toast.success('结果区已清空，历史记录仍保留');
+    Toast.success('结果区已清空，后台任务与历史仍保留');
+  },
+
+  restoreScreen() {
+    const tasks = Store.getTasks();
+    const hidden = tasks.filter(t => t.screenHidden).length;
+    if (!hidden) { Toast.info('没有需要恢复的任务'); return; }
+    Store.saveTasks(tasks.map(t => ({ ...t, screenHidden: false })));
+    this.renderTaskList();
+    Toast.success(`已恢复 ${hidden} 条任务显示`);
   },
 
   showDetail(taskId) {
@@ -5821,7 +5848,8 @@ const UI = {
         if (urls.length > 0) body[p.key] = p.output === 'csv' ? urls.join(',') : urls;
       }
     });
-    Store.savePreset(name, this.currentTab, model.id, body);
+    const savedId = Store.savePreset(name, this.currentTab, model.id, body);
+    if (!savedId) { Toast.error('预设保存失败，可能是浏览器存储空间不足'); return; }
     this.renderPresets();
     this.closePresetModal();
     Toast.success(`预设「${name}」已保存`);
@@ -5861,6 +5889,7 @@ const UI = {
       if (!param) return;
       if (param.type === 'ref-image') {
         const urls = Array.isArray(v) ? v : (typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean) : []);
+        this.refState[this.currentModelKey][k] = [];
         urls.forEach(url => this.addUrlRef(url, k));
       } else if (param.type === 'url-list' && Array.isArray(v)) {
         const ul = grp.querySelector('.url-list');
@@ -6030,7 +6059,7 @@ const UI = {
       if (!Array.isArray(data)) { Toast.error('文件格式错误：应为数组'); return; }
       if (data.length === 0) { Toast.warning('文件中无记录'); return; }
       // 校验必要字段
-      const valid = data.filter(h => h && h.id && h.modelName && h.createdAt);
+      const valid = data.filter(h => h && h.id && h.modelName && Number.isFinite(Number(h.createdAt)));
       if (valid.length === 0) { Toast.error('文件中无有效记录（缺 id/modelName/createdAt）'); return; }
       // 合并去重：以 id 为 key，导入覆盖现有
       const existing = Store.getHistory();
@@ -6208,7 +6237,10 @@ const UI = {
       const text = e.clipboardData && e.clipboardData.getData && e.clipboardData.getData('text/plain');
       if (text) {
         const s = text.trim();
-        if (/^https?:\/\/\S+$/i.test(s)) {
+        const active = document.activeElement;
+        const editingControl = active && ['INPUT','TEXTAREA','SELECT'].includes(active.tagName);
+        // 修复：普通输入框中粘贴 URL 时不再被全局参考图逻辑抢占
+        if (!editingControl && /^https?:\/\/\S+$/i.test(s)) {
           const target = this.getActiveRefParamKey();
           if (target) { this.addUrlRef(s, target); e.preventDefault(); Toast.success('已添加 URL 参考图'); }
         }

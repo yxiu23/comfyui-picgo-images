@@ -1,3 +1,4 @@
+<!-- FINAL-RELEASE: 2026-08-30 | API-SCHEMA-v8 | PRESETS-v2 | WORKFLOW-v2 | PAY-v1 -->
 <!-- AI 多媒体生成工作台 · 速创 API · v6.4 (全量稳定性修复 + 交互优化) -->
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
@@ -1864,6 +1865,14 @@ select option { background: var(--bg-elev); color: var(--text); }
   .tool-group { padding-right: 6px; }
 }
 
+/* ============ 补充能量：统计页支付卡片 ============ */
+.energy-card{margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);display:flex;align-items:center;justify-content:space-between;gap:18px;overflow:hidden;}
+.energy-info{min-width:0;flex:1}.energy-kicker{font-size:11px;color:var(--brand-1);font-weight:700;letter-spacing:.06em;margin-bottom:5px}.energy-title{font-size:16px;font-weight:700;color:var(--text);margin:0 0 5px}.energy-desc{font-size:12px;color:var(--text-muted);line-height:1.6;margin:0}.energy-pay-btn{margin-top:12px;padding:8px 14px;border-radius:10px;background:var(--brand-1);color:#fff;font-size:12px;font-weight:600;transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease}.energy-pay-btn:hover{box-shadow:0 6px 18px rgba(59,110,245,.18);transform:translateY(-1px)}.energy-pay-btn:active{transform:scale(.97)}
+.energy-qr{width:132px;height:132px;flex:0 0 132px;background:#fff;border-radius:12px;padding:8px;box-sizing:border-box;cursor:zoom-in;box-shadow:0 3px 16px rgba(0,0,0,.08)}.energy-qr img{display:block;width:100%;height:100%;image-rendering:pixelated}.energy-mobile-note{display:none;font-size:11px;color:var(--text-dim);margin-top:8px}
+.energy-qr-modal{display:flex;justify-content:center;align-items:center;padding:8px}.energy-qr-large{width:min(72vw,360px);height:min(72vw,360px);background:#fff;padding:14px;border-radius:16px;box-sizing:border-box;image-rendering:pixelated}
+@media(max-width:700px){.energy-card{padding:14px}.energy-qr{display:none}.energy-desc{font-size:11px}.energy-mobile-note{display:block}.energy-pay-btn{width:100%}}
+@media(max-width:460px){.energy-card{display:block}.energy-qr{display:none}.energy-pay-btn{margin-top:10px}}
+
 /* 消费统计 */
 .stats-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
 .stats-range-btn {
@@ -2190,7 +2199,43 @@ button, .action-btn, .header-btn, .tab, .preset-btn, .load-more-btn,
 .history-filter-tab, .clear-screen-btn { transition: transform .12s ease, background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
 button:active:not(:disabled), .action-btn:active:not(:disabled) { transform: scale(.98); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }
+
+/* ===== V7 工作流增强层 ===== */
+.task-center-trigger{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);color:var(--text-muted);font-size:12px;cursor:pointer}
+.task-center-trigger:hover{border-color:var(--brand-1);color:var(--brand-1);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.task-center-trigger .tc-dot{width:7px;height:7px;border-radius:50%;background:var(--brand-1);box-shadow:0 0 0 0 rgba(59,110,245,.45);animation:tc-pulse 1.8s infinite}
+@keyframes tc-pulse{70%{box-shadow:0 0 0 7px rgba(59,110,245,0)}100%{box-shadow:0 0 0 0 rgba(59,110,245,0)}}
+.prompt-workbench{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:6px;padding:7px 9px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)}
+.prompt-workbench .pw-left{display:flex;gap:6px;align-items:center;min-width:0}
+.prompt-workbench .pw-left select{min-width:0;flex:1;padding:7px 8px;font-size:11px;background:var(--surface)}
+.prompt-workbench .pw-meta{font-size:10px;color:var(--text-dim);white-space:nowrap;font-family:var(--font-mono)}
+.prompt-workbench .pw-actions{display:flex;gap:4px}
+.prompt-workbench button{min-height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;font-size:11px}
+.prompt-workbench button:hover{color:var(--brand-1);border-color:var(--brand-1)}
+.ref-status-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;padding:7px 9px;border:1px dashed var(--border);border-radius:9px;font-size:10px;color:var(--text-dim)}
+.ref-status-bar .rs-ready{color:var(--success)} .ref-status-bar .rs-pending{color:var(--warning)} .ref-status-bar .rs-fail{color:var(--danger)}
+.ref-status-bar .rs-upload{border:0;background:transparent;color:var(--brand-1);cursor:pointer;font-size:10px}
+.history-quick-actions{display:flex;gap:5px;margin-top:4px}
+.history-quick-actions button{font-size:10px;padding:2px 6px;border:1px solid var(--border);background:transparent;border-radius:6px;color:var(--text-dim);cursor:pointer}
+.history-quick-actions button:hover{border-color:var(--brand-1);color:var(--brand-1)}
+.editor-mask-tools{display:flex;gap:5px;align-items:center;margin-top:7px;flex-wrap:wrap}
+.editor-mask-tools button{font-size:10px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text-muted);cursor:pointer}
+.editor-mask-tools button.active{color:var(--brand-1);border-color:var(--brand-1);background:var(--brand-soft)}
+.editor-direction-pad{display:grid;grid-template-columns:repeat(3,28px);gap:3px;align-items:center}
+.editor-direction-pad button{width:28px;height:26px;padding:0}
+.editor-direction-pad .empty{visibility:hidden}
+.workflow-toast-action{border:0;background:var(--brand-soft);color:var(--brand-1);padding:4px 7px;border-radius:6px;font-size:11px;cursor:pointer}
+@media (max-width:640px){
+  .task-center-trigger{flex:1;justify-content:center}
+  .prompt-workbench{grid-template-columns:1fr;gap:6px}
+  .prompt-workbench .pw-actions{justify-content:flex-end}
+  .prompt-workbench .pw-left select{width:100%}
+  .ref-status-bar{font-size:10px}
+  .editor-direction-pad button{min-width:28px}
+}
+
 </style>
+<!-- RELEASE v9.2 DESKTOP -->
 </head>
 <body>
 
@@ -2553,6 +2598,9 @@ button:active:not(:disabled), .action-btn:active:not(:disabled) { transform: sca
 /* ============================================================
    配置
    ============================================================ */
+const WECHAT_PAY_URI = 'wxp://f2f0bhNf2RE-C229PBeSBM85o3AVfGoHJfCF5uhtlrg7jhA';
+const WECHAT_QR_DATA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADAUlEQVR4nO2cTY7jIBCFXw2WssQ3yFHgZrmaOUpugJctYb1ZFPgnvRj1ZMZOnPKiFdv51IVUol49IEL8+Eq/fs4ABhlkkEEGGWTQOSGpVwekfhIAk0jEpE+BsX0hHhKeQftDgSSZAWDsIBEAUu/IQd87kiS30H7hGbQ/NM4TgN5eCGAShOw0D3QGOSo8gw6EfAHStaBND//vPxn0ilD3+CBkUABA6stJvlkWLz4mg/4F5KmaQaSHTg8kCyTCUWK7PSw8g/aGkoiI9ADCvYPc7h0kqpgAgKXrOCY8g/auGktdYLp+CTECTL0DUw8B/LZwvPiYDHoGgnaVgQUc4PSTvhj8XCZ80e/pNbz4mAx6BmoZkR2bUnBs9kTzI0KG5otlxPkhrJynkOdkIKl9qPoRviaNvrWMODPUqkGuZaK2GRnQPNAmpP2xjDg/pMpSwkAIcCHgMyQMpWticuqIsSsCf0B4Bu0ObRSjr7Wiiko/y4rcJKfNEaeHmo5oDlX1rvW2KstFVpiy/CwoLL3GXaTOEb7oWjlCru7lW43JoL+DyLuIxLFDywMSIQMI9wuXBdCDwjPoCMhpXZAIYFkcl4hJ2lLoZC72B0CzZ0kCcLXTXLtW1a3QjtSU5emhJhbVcSjNikAtE9WpzE7fWkacH9p6ls2mogqHmgcrc8p6jdNDq7VPWS9xVs1QXav5K2HYNzyDDoJE+qluub5lYJGSHHyB3O7bXZhvMSaDnpojUrwQ6Vo6AI4C7yhBJ4epQ7oSkvq8f3gG7Q6t90ewNRerla6wURmmLM8Prdc1OLegZNlIzs0ny4gPgJYzXSS/ZLPF0hFQM5PtQM9bjMmgp6DQaoVuv03XAmjDsVoFBSQeE55B++uIDN0vVf0IzrtjmldlfsSHQI8neCTkCcDYzx5FBlMEYL3GZ0CPGcEkjgI4rRNLWug5L3OoTg+tK4R2nxm109RruzHfqsanQPOZLon6oK2CDuOFumOm/rDEIeEZtB/0/Zjvny/7ZTKDDDLIIIMMMggAfgPsyVnBnGk1FgAAAABJRU5ErkJggg==';
+
 const CONFIG = {
   API_BASE: 'https://api.wuyinkeji.com',
   DETAIL_PATH: '/api/async/detail',
@@ -2970,14 +3018,20 @@ function classifyError(errMsg) {
   if (/密钥|key|unauthorized|auth/.test(msg)) {
     return { type: 'auth', hint: '请检查 API 密钥是否正确', fixLabel: '聚焦密钥输入框', fixAction: 'focus-key' };
   }
+  if (/429|rate_limited|too many|频繁|限流/.test(msg)) {
+    return { type: 'rate', hint: '请求过于频繁，系统会自动退避，请稍后重试', fixLabel: null, fixAction: null };
+  }
   if (/余额|balance|insufficient|quota/.test(msg)) {
     return { type: 'balance', hint: '账户余额不足，请前往速创控制台充值', fixLabel: null, fixAction: null };
+  }
+  if (/invalid_json|不是有效 json|返回.*json/.test(msg)) {
+    return { type: 'response', hint: '服务返回格式异常，请稍后重试', fixLabel: '重试', fixAction: null };
   }
   if (/参数|param|invalid|required/.test(msg)) {
     return { type: 'param', hint: '参数格式错误，请检查必填项与格式', fixLabel: '查看参数', fixAction: 'show-detail' };
   }
   if (/超时|request_timeout|network|timeout|fetch|cors|网络/.test(msg)) {
-    return { type: 'network', hint: '网络异常或浏览器跨域限制，建议用 Chrome 带 --disable-web-security 启动', fixLabel: '查看 CORS 解决方案', fixAction: 'show-cors-help' };
+    return { type: 'network', hint: '网络异常或浏览器跨域限制，请检查网络或稍后重试', fixLabel: '查看 CORS 解决方案', fixAction: 'show-cors-help' };
   }
   if (/nsfw|敏感|违规|content/.test(msg)) {
     return { type: 'content', hint: '内容触发审核，请修改提示词后重试', fixLabel: null, fixAction: null };
@@ -3076,6 +3130,70 @@ const Store = {
 /* ============================================================
    API 层
    ============================================================ */
+
+/* ============================================================
+   Strict API Schema Layer v8
+   关键修改：把 16 个模型的提交约束集中在最终请求前校验，
+   避免桌面/手机两端因表单差异产生非法 API body。
+   ============================================================ */
+const API_SCHEMA = {
+  // 仅在官方文档明确给出数量上限时设置 refs，避免客户端凭空收紧 API。
+  nanoBanana2: { prompt:'prompt', refs:{urls:14} },
+  'gpt-image-2': { prompt:'prompt' },
+  nanoBanana_pro: { prompt:'prompt', refs:{urls:14} },
+  nanoBanana2Lite: { prompt:'prompt' },
+  wan3: { prompt:'prompt', refs:{images:10,videos:5,audios:5}, frameExclusive:true },
+  minimax_h3: { prompt:'prompt', refs:{images:9,videos:3,audios:3}, frameExclusive:true },
+  video_upscaling: {},
+  google_omni: { prompt:'prompt', refs:{images:1,videos:1}, fixedDuration:10 },
+  video_vidu: { prompt:'prompt' },
+  video_omni: { prompt:'prompt', soundRule:true },
+  digital_humans: { prompt:'prompt' },
+  video_package: { prompt:'prompt', packageMin:1, packageMax:30 },
+  veo3_fast: { prompt:'prompt', refs:{urls:3}, frameExclusive:true, lastNeedsFirst:true },
+  audio_tts: { text:'text', speed:[0.5,2], vol:[0.1,10] },
+  voice_composite: { text:'text' },
+  voice_clone: { required:['audio_url','text'], optional:['name'] }
+};
+
+function strictNumber(v){
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+function strictArr(v){
+  if (Array.isArray(v)) return v.filter(Boolean);
+  if (typeof v === 'string') return v.split(',').map(s=>s.trim()).filter(Boolean);
+  return [];
+}
+function strictValidateRequest(model, body){
+  // 唯一最终入口：先执行模型细则，再执行 Schema 元数据兜底。
+  const out = normalizeAndValidateApiBody(model, body);
+  const b = out?.body || { ...(body || {}) };
+  const errors = Array.isArray(out?.errors) ? [...out.errors] : [];
+  const add = msg => { if (msg && !errors.includes(msg)) errors.push(msg); };
+  const schema = API_SCHEMA?.[model?.id];
+  const has = k => b[k] !== undefined && b[k] !== null && String(b[k]).trim() !== '';
+  if (schema?.prompt && !has(schema.prompt)) add('提示词不能为空');
+  if (schema?.text && !has(schema.text)) add('文本不能为空');
+  if (Array.isArray(schema?.required)) {
+    schema.required.forEach(k => { if (!has(k)) add(`${k}不能为空`); });
+  }
+  if (schema?.fixedDuration != null) b.duration = String(schema.fixedDuration);
+  return { body:b, errors };
+}
+
+/* API 响应统一解析：兼容文档中的 data:string 与实际示例中的 data:object。 */
+function normalizeApiResponse(payload) {
+  if (!payload || typeof payload !== 'object') return payload;
+  if (typeof payload.data === 'string') {
+    const raw = payload.data.trim();
+    if (raw && (raw.startsWith('{') || raw.startsWith('['))) {
+      try { payload = { ...payload, data: JSON.parse(raw) }; } catch { /* 保留原字符串，交由调用方处理 */ }
+    }
+  }
+  return payload;
+}
+
 const Api = {
   REQUEST_TIMEOUT: 45000,
   async fetchWithTimeout(url, options = {}, timeout = this.REQUEST_TIMEOUT) {
@@ -3103,11 +3221,24 @@ const Api = {
         body: JSON.stringify(body)
       });
     } catch (e) {
-      // E2: CORS / 网络异常专门提示
+      // 关键修复：请求超时必须保留为 REQUEST_TIMEOUT，不能误报成 CORS。
+      if (e?.message === 'REQUEST_TIMEOUT') throw e;
       throw new Error('NETWORK_OR_CORS');
     }
     if (!resp.ok) throw new Error(`网络异常 ${resp.status}`);
-    try { return await resp.json(); } catch { throw new Error('API 返回不是有效 JSON'); }
+    try {
+      const payload = normalizeApiResponse(await resp.json());
+      if (payload?.code != null && Number(payload.code) !== 200) {
+        const err = new Error(`API_${payload.code}:${payload.msg || ''}`);
+        err.apiCode = Number(payload.code); err.apiMsg = payload.msg || '';
+        throw err;
+      }
+      return payload;
+    } catch (e) {
+      if (e?.message?.startsWith('API_')) throw e;
+      if (e?.message === 'API 返回不是有效 JSON') throw e;
+      throw new Error('API 返回不是有效 JSON');
+    }
   },
 
   async syncCall(endpoint, body) {
@@ -3115,16 +3246,20 @@ const Api = {
     if (!key) throw new Error('NO_API_KEY');
     let resp;
     try {
-      resp = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, {
-        method: 'POST',
-        headers: this._headers('application/json;charset:utf-8;'),
-        body: JSON.stringify(body)
-      });
+      resp = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, { method:'POST', headers:this._headers('application/json'), body:JSON.stringify(body) });
     } catch (e) {
+      if (e?.message === 'REQUEST_TIMEOUT') throw e;
       throw new Error('NETWORK_OR_CORS');
     }
-    if (!resp.ok) throw new Error(`网络异常 ${resp.status}`);
-    try { return await resp.json(); } catch { throw new Error('API 返回不是有效 JSON'); }
+    if (!resp.ok) throw new Error(`HTTP_${resp.status}`);
+    try {
+      const payload=normalizeApiResponse(await resp.json());
+      if(payload?.code!=null && Number(payload.code)!==200){ const err=new Error(`API_${payload.code}:${payload.msg||''}`); err.apiCode=Number(payload.code); err.apiMsg=payload.msg||''; throw err; }
+      return payload;
+    } catch(e) {
+      if(e?.message?.startsWith('API_')) throw e;
+      throw new Error('API 返回不是有效 JSON');
+    }
   },
 
   async queryDetail(id) {
@@ -3139,6 +3274,7 @@ const Api = {
         cache: 'no-store'
       });
     } catch (e) {
+      if (e?.message === 'REQUEST_TIMEOUT') throw e;
       throw new Error('NETWORK_OR_CORS');
     }
     // 429 限流：特殊错误，触发退避算法
@@ -3148,12 +3284,23 @@ const Api = {
       throw err;
     }
     if (!resp.ok) throw new Error(`查询失败 ${resp.status}`);
-    try { return await resp.json(); } catch { throw new Error('查询接口返回不是有效 JSON'); }
+    try {
+      const payload = normalizeApiResponse(await resp.json());
+      if (payload?.code != null && Number(payload.code) !== 200) {
+        const err = new Error(`QUERY_API_${payload.code}:${payload.msg || ''}`);
+        err.apiCode = Number(payload.code); err.apiMsg = payload.msg || '';
+        throw err;
+      }
+      return payload;
+    } catch (e) {
+      if (e?.message?.startsWith('QUERY_API_')) throw e;
+      throw new Error('查询接口返回不是有效 JSON');
+    }
   },
 
   extractResultUrl(detail) {
     if (!detail) return null;
-    const data = detail.data;
+    const data = typeof detail.data === 'string' ? (() => { try { return JSON.parse(detail.data); } catch { return detail.data; } })() : detail.data;
     const isUrl = s => typeof s === 'string' && /^https?:\/\/\S+/i.test(s) && s.length < 2000;
     // 1. 常见字段（覆盖所有可能命名）
     const keys = [
@@ -3386,18 +3533,19 @@ class PollManager {
         // 修复竞态：用户手动停止轮询后，已在途请求返回也不能把 stopped 状态覆盖成 success/failed
         if (st.stopped) return;
         st.netFails = 0;
-        const status = detail?.data?.status;
-        const message = detail?.data?.message;
+        const parsedDetail = normalizeApiResponse(detail);
+        const status = parsedDetail?.data?.status;
+        const message = parsedDetail?.data?.message;
         Store.updateTask(task.id, { lastStatus: status, lastQueryAt: Date.now() });
         if (status === 2) {
-          const url = Api.extractResultUrl(detail);
+          const url = Api.extractResultUrl(parsedDetail);
           const elapsed = Date.now() - st.startAt;
           this.stop(task.id);
           Store.updateTask(task.id, {
-            status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: detail, endTime: Date.now(), elapsed
+            status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: parsedDetail, endTime: Date.now(), elapsed
           });
           Store.updateHistory(task.historyId, {
-            status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: detail, endTime: Date.now(), elapsed
+            status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: parsedDetail, endTime: Date.now(), elapsed
           });
           UI.renderTaskList();
           UI.renderHistory();
@@ -3417,7 +3565,7 @@ class PollManager {
         } else if (status === 3) {
           const errMsg = message || '生成失败';
           this.stop(task.id);
-          Store.updateTask(task.id, { status: 'failed', error: errMsg, rawDetail: detail, endTime: Date.now() });
+          Store.updateTask(task.id, { status: 'failed', error: errMsg, rawDetail: parsedDetail, endTime: Date.now() });
           Store.updateHistory(task.historyId, { status: 'failed', error: errMsg, endTime: Date.now() });
           UI.renderTaskList();
           UI.renderHistory();
@@ -3523,14 +3671,15 @@ class PollManager {
     Toast.info('正在查询…');
     try {
       const detail = await Api.queryDetail(t.apiId);
-      const status = detail?.data?.status;
-      const message = detail?.data?.message;
+      const parsedDetail = normalizeApiResponse(detail);
+      const status = parsedDetail?.data?.status;
+      const message = parsedDetail?.data?.message;
       if (status === 2) {
-        const url = Api.extractResultUrl(detail);
+        const url = Api.extractResultUrl(parsedDetail);
         const elapsed = t.startTime ? Date.now() - t.startTime : 0;
         this.stop(taskId);
-        Store.updateTask(taskId, { status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: detail, endTime: Date.now(), elapsed });
-        Store.updateHistory(t.historyId, { status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: detail, endTime: Date.now(), elapsed });
+        Store.updateTask(taskId, { status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: parsedDetail, endTime: Date.now(), elapsed });
+        Store.updateHistory(t.historyId, { status: 'success', resultUrl: url, rawRawUrl: url, rawDetail: parsedDetail, endTime: Date.now(), elapsed });
         UI.renderTaskList(); UI.renderHistory(); UI.updateTitle();
         Toast.success(`${t.modelName} 生成成功`);
         UI.playSuccessSound();
@@ -3541,7 +3690,7 @@ class PollManager {
       } else if (status === 3) {
         const errMsg = message || '生成失败';
         this.stop(taskId);
-        Store.updateTask(taskId, { status: 'failed', error: errMsg, rawDetail: detail, endTime: Date.now() });
+        Store.updateTask(taskId, { status: 'failed', error: errMsg, rawDetail: parsedDetail, endTime: Date.now() });
         Store.updateHistory(t.historyId, { status: 'failed', error: errMsg, endTime: Date.now() });
         UI.renderTaskList(); UI.renderHistory(); UI.updateTitle();
         UI.showErrorToastWithRetry(taskId, t.modelName, errMsg);
@@ -3579,7 +3728,14 @@ function normalizeAndValidateApiBody(model, input) {
   const errors = [];
   const has = k => body[k] !== undefined && body[k] !== null && String(body[k]).trim() !== '';
   const add = msg => { if (msg && !errors.includes(msg)) errors.push(msg); };
-  const validUrl = v => /^https?:\/\/\S+$/i.test(String(v || '').trim());
+  const validUrl = v => /^https?:\/\/\S+$/i.test(String(v || '').trim()) && String(v || '').trim().length < 4000;
+  const checkUrlArray = (key, label, max) => {
+    if (!Array.isArray(body[key])) return;
+    const arr = body[key].map(v => String(v || '').trim()).filter(Boolean);
+    if (arr.some(u => !validUrl(u))) add(`${label}包含无效 URL`);
+    if (max != null && arr.length > max) add(`${label}最多 ${max} 个`);
+    body[key] = arr;
+  };
   const splitCsv = v => String(v || '').split(',').map(s => s.trim()).filter(Boolean);
   const checkCsv = (key, label, max) => {
     if (!has(key)) return;
@@ -3608,7 +3764,7 @@ function normalizeAndValidateApiBody(model, input) {
     case 'nanoBanana2Lite':
       checkEnum('size', '分辨率', model.id === 'nanoBanana2Lite' ? ['1K'] : ['1K','2K','4K']);
       checkEnum('aspectRatio', '比例', ['auto','1:1','16:9','9:16','4:3','3:4','3:2','2:3','5:4','4:5','21:9','1:4','1:8','4:1','8:1']);
-      if (Array.isArray(body.urls) && body.urls.length > (model.id === 'nanoBanana2' || model.id === 'nanoBanana_pro' ? 14 : Infinity)) add('参考图最多 14 张');
+      checkUrlArray('urls', '参考图', model.id === 'nanoBanana2' || model.id === 'nanoBanana_pro' ? 14 : null);
       break;
     case 'gpt-image-2':
       checkEnum('size', '比例', ['auto','1:1','3:2','2:3','16:9','9:16','4:3','3:4','21:9','9:21','1:3','3:1','2:1','1:2']);
@@ -3991,7 +4147,7 @@ const UI = {
 
   // E2: CORS 错误专门提示
   showCorsError() {
-    Toast.error('浏览器跨域限制或网络异常。建议：1) 用 Chrome 带 --disable-web-security 启动；2) 或部署到服务器；3) 或联系速创开放 CORS', {
+    Toast.error('浏览器跨域限制或网络异常。建议检查网络；若图片编辑失败，可先使用已转存到图床的结果图片', {
       duration: 8000,
       actions: [{ label: '查看详细方案', action: 'cors-help', onClick: () => this.showCorsHelpModal() }]
     });
@@ -4004,9 +4160,7 @@ const UI = {
       <pre style="background:var(--surface-2);padding:10px;border-radius:6px;font-size:12px;line-height:1.6">
 方案 1：Chrome 关闭安全检查（开发用）
   # macOS
-  open -na "Google Chrome" --args --disable-web-security --user-data-dir=/tmp/cors
-  # Windows
-  chrome.exe --disable-web-security --user-data-dir=C:\\cors
+    # Windows
 
 方案 2：部署到服务器（生产用）
   将本 HTML 部署到与 API 同域的服务器，
@@ -4251,8 +4405,9 @@ const UI = {
       let promptHistoryBtn = '';
       if (p.key === 'prompt' || p.key === 'text') {
         promptHistoryBtn = `<button class="prompt-history-btn" type="button" id="phBtn-${p.key}">最近</button>`;
+        inspireBtn = `<button class="prompt-history-btn" type="button" data-prompt-inspire="${p.key}">灵感</button>`;
       }
-      const label = `<label>${escapeHtml(p.label)} ${p.required ? '<span class="req">*</span>' : '<span class="opt">（可选）</span>'}${promptHistoryBtn}</label>`;
+      const label = `<label>${escapeHtml(p.label)} ${p.required ? '<span class="req">*</span>' : '<span class="opt">（可选）</span>'}${promptHistoryBtn}${inspireBtn||''}</label>`;
       let input = '';
       const defVal = p.default != null ? String(p.default) : '';
       if (p.type === 'textarea') {
@@ -4710,6 +4865,10 @@ const UI = {
     $('#generateBtnText').textContent = '处理中…';
     try {
       const { body, errors } = await this.collectParamsAsync();
+      // v8：最终请求前统一 API Schema 校验（桌面端）
+      const strictCheck = strictValidateRequest(this.currentModel, body);
+      Object.assign(body, strictCheck.body);
+      errors.push(...strictCheck.errors);
       // 双重校验：从当前可见 textarea 重新读取 prompt/text，避免表单重绘或缓存导致误判为空。
       const promptParam = model.params.find(p => p.key === 'prompt' || p.key === 'text');
       if (promptParam) {
@@ -5654,35 +5813,37 @@ const UI = {
     // 底层：全画布填红边色
     bgCtx.fillStyle = `rgba(${this.editor.color},${this.editor.opacity})`;
     bgCtx.fillRect(0, 0, newW, newH);
+    // 底层：绘制原图到新位置（覆盖中央，留出红边）
+    bgCtx.drawImage(tmpBg, offsetX, offsetY);
     // 底层羽化边缘（在原图四周做渐变，让红边与原图过渡自然）
     if (this.editor.feather > 0) {
       const f = this.editor.feather;
       bgCtx.save();
-      bgCtx.globalCompositeOperation = 'destination-out';
+      bgCtx.globalCompositeOperation = 'source-over';
+      const edge = `rgba(${this.editor.color},${this.editor.opacity})`;
+      const none = `rgba(${this.editor.color},0)`;
       if (top) {
         const g = bgCtx.createLinearGradient(0, offsetY - f, 0, offsetY + f);
-        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+        g.addColorStop(0, none); g.addColorStop(1, edge);
         bgCtx.fillStyle = g; bgCtx.fillRect(offsetX, offsetY - f, oldW, f * 2);
       }
       if (bottom) {
         const g = bgCtx.createLinearGradient(0, offsetY + oldH - f, 0, offsetY + oldH + f);
-        g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+        g.addColorStop(0, edge); g.addColorStop(1, none);
         bgCtx.fillStyle = g; bgCtx.fillRect(offsetX, offsetY + oldH - f, oldW, f * 2);
       }
       if (left) {
         const g = bgCtx.createLinearGradient(offsetX - f, 0, offsetX + f, 0);
-        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+        g.addColorStop(0, none); g.addColorStop(1, edge);
         bgCtx.fillStyle = g; bgCtx.fillRect(offsetX - f, offsetY, f * 2, oldH);
       }
       if (right) {
         const g = bgCtx.createLinearGradient(offsetX + oldW - f, 0, offsetX + oldW + f, 0);
-        g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+        g.addColorStop(0, edge); g.addColorStop(1, none);
         bgCtx.fillStyle = g; bgCtx.fillRect(offsetX + oldW - f, offsetY, f * 2, oldH);
       }
       bgCtx.restore();
     }
-    // 底层：绘制原图到新位置（覆盖中央，留出红边）
-    bgCtx.drawImage(tmpBg, offsetX, offsetY);
     // 顶层：把原蒙版绘制到新位置（保持已有蒙版内容）
     maskCtx.drawImage(tmpMask, offsetX, offsetY);
     // 记录扩图操作到 maskOps（用于导出时重放）
@@ -5711,7 +5872,7 @@ const UI = {
     bgSnap.width = this.editor.bgCanvas.width;
     bgSnap.height = this.editor.bgCanvas.height;
     bgSnap.getContext('2d').drawImage(this.editor.bgCanvas, 0, 0);
-    this.editor.undoStack.push({ mask: maskSnap, bg: bgSnap });
+    this.editor.undoStack.push({ mask: maskSnap, bg: bgSnap, maskOps: Array.isArray(this.editor.maskOps) ? structuredClone(this.editor.maskOps) : [] });
   },
 
   undoEditor() {
@@ -5734,6 +5895,7 @@ const UI = {
     const bgCtx = this.editor.bgCtx;
     bgCtx.clearRect(0, 0, prev.bg.width, prev.bg.height);
     bgCtx.drawImage(prev.bg, 0, 0);
+    this.editor.maskOps = Array.isArray(prev.maskOps) ? structuredClone(prev.maskOps) : [];
   },
 
 
@@ -6305,6 +6467,41 @@ const UI = {
     }
   },
 
+  // ============ 补充能量 ============
+  // 电脑端展示二维码；移动端优先直接唤起微信，不在页面占用二维码空间。
+  openEnergyPayment() {
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.matchMedia('(max-width: 700px)').matches;
+    if (!isMobile) {
+      this.showEnergyQrModal();
+      return;
+    }
+    let leftPage = false;
+    const onVisibility = () => { if (document.hidden) leftPage = true; };
+    document.addEventListener('visibilitychange', onVisibility, { once: true });
+    const fallbackTimer = setTimeout(() => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (!leftPage) Toast.info('未能自动打开微信，请在微信中打开本页面后再试');
+    }, 1200);
+    try { window.location.href = WECHAT_PAY_URI; } catch (e) {
+      clearTimeout(fallbackTimer);
+      document.removeEventListener('visibilitychange', onVisibility);
+      Toast.info('未能打开微信，请在微信中打开本页面后再试');
+    }
+  },
+
+  showEnergyQrModal() {
+    $('#modalTitle').textContent = '补充能量';
+    $('#modalBody').innerHTML = `
+      <div class="energy-qr-modal">
+        <img class="energy-qr-large" src="${WECHAT_QR_DATA}" alt="微信收款二维码" title="扫码补充能量">
+      </div>
+      <div style="text-align:center;color:var(--text-muted);font-size:12px;margin-top:4px">使用微信扫一扫</div>
+    `;
+    $('#modalFooter').innerHTML = `<button class="action-btn" id="modalCloseFooter">关闭</button>`;
+    $('#modalCloseFooter').onclick = () => this.closeModal();
+    $('#modal').classList.add('show');
+  },
+
   // ============ 消费统计 ============
   showStats() {
     const all = Store.getHistory();
@@ -6334,9 +6531,18 @@ const UI = {
         $$('.stats-range-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         $('#statsContent').innerHTML = this.renderStatsContent(s);
+        this.bindEnergyPayment(); // 统计范围切换会重绘内容，需要重新绑定支付入口
       });
     });
+    this.bindEnergyPayment();
     $('#modal').classList.add('show');
+  },
+
+  bindEnergyPayment() {
+    const energyPayBtn = $('#energyPayBtn');
+    if (energyPayBtn) energyPayBtn.onclick = () => this.openEnergyPayment();
+    const energyQrPreview = $('#energyQrPreview');
+    if (energyQrPreview) energyQrPreview.onclick = () => this.showEnergyQrModal();
   },
 
   calcStats(items, range) {
@@ -6441,6 +6647,18 @@ const UI = {
             </div>`;
           }).join('')
         }
+      </div>
+      <div class="energy-card">
+        <div class="energy-info">
+          <div class="energy-kicker">SUPPORT</div>
+          <h4 class="energy-title">补充能量</h4>
+          <p class="energy-desc">支持微信付款，感谢你的支持。</p>
+          <button class="energy-pay-btn" id="energyPayBtn">微信支付</button>
+          <div class="energy-mobile-note">手机端点击后尝试直接打开微信</div>
+        </div>
+        <div class="energy-qr" id="energyQrPreview" title="微信扫一扫">
+          <img src="${WECHAT_QR_DATA}" alt="微信收款二维码">
+        </div>
       </div>
     `;
   },
@@ -6555,6 +6773,411 @@ window.addEventListener('unhandledrejection', e => {
 });
 // 定时更新 title（每秒）
 setInterval(() => UI.updateTitle(), 1000);
+</script>
+<script>window.__WORKBENCH_LAYOUT__="desktop";</script>
+<script>
+
+/* ===== V7 工作流增强：不改变原 API Schema，只增强 UI 与可复现工作流 ===== */
+(function installWorkflowEnhancements(){
+  const boot = () => {
+    if (!window.UI || window.__workflowV7Installed) return;
+    window.__workflowV7Installed = true;
+    const $ = (s,root=document)=>root.querySelector(s);
+    const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
+    const esc = (v)=>{ const d=document.createElement('div'); d.textContent=String(v??''); return d.innerHTML; };
+
+    /* 1) 任务中心：复用现有 activeTasksPanel，不创建第二套轮询器 */
+    const header = $('.app-header');
+    if(header && !$('#taskCenterTrigger')){
+      const btn=document.createElement('button');
+      btn.id='taskCenterTrigger'; btn.type='button'; btn.className='task-center-trigger';
+      btn.innerHTML='<span class="tc-dot"></span><span>任务 <b id="taskCenterCount">0</b></span>';
+      const ref=$('#statsBtn') || $('#historyToggleBtn');
+      if(ref) header.insertBefore(btn,ref); else header.appendChild(btn);
+      btn.addEventListener('click',()=>{
+        const active=Store.getTasks().filter(t=>t.status==='running');
+        if(window.matchMedia('(max-width:640px)').matches && typeof UI.switchMobileSegment==='function') UI.switchMobileSegment('result');
+        const panel=$('#activeTasksPanel');
+        if(active.length && panel){ panel.scrollIntoView({behavior:'smooth',block:'start'}); panel.style.boxShadow='0 0 0 2px var(--brand-1)'; setTimeout(()=>panel.style.boxShadow='',900); }
+        else if(typeof Toast!=='undefined') Toast.info('当前没有运行中的任务');
+      });
+    }
+
+    const refreshTaskCount=()=>{ const el=$('#taskCenterCount'); if(el) el.textContent=Store.getTasks().filter(t=>t.status==='running').length; };
+    refreshTaskCount();
+    const oldRenderTaskList=UI.renderTaskList;
+    if(typeof oldRenderTaskList==='function' && !UI.__v7TaskPatched){
+      UI.__v7TaskPatched=true;
+      UI.renderTaskList=function(){ const r=oldRenderTaskList.apply(this,arguments); refreshTaskCount(); return r; };
+    }
+
+    /* 2) Prompt 工作区：最近提示、字数、复制、清空；不覆盖预设逻辑 */
+    let promptObserver;
+    const enhancePrompt=()=>{
+      const form=$('#paramForm'); if(!form) return;
+      const ta=form.querySelector('textarea[data-key="prompt"],textarea[data-key="text"]');
+      if(!ta || ta.dataset.v7Enhanced==='1') return;
+      ta.dataset.v7Enhanced='1';
+      const wrap=document.createElement('div'); wrap.className='prompt-workbench';
+      const prompts=(Store.getPromptHistory?.()||[]).slice(0,12);
+      wrap.innerHTML='<div class="pw-left"><select aria-label="最近提示词"><option value="">最近提示词…</option>'+prompts.map(p=>'<option value="'+esc(p)+'">'+esc(String(p).slice(0,70))+'</option>').join('')+'</select><span class="pw-meta" id="pwCount">0</span></div><div class="pw-actions"><button type="button" data-pw="copy">复制</button><button type="button" data-pw="clear">清空</button></div>';
+      ta.parentNode.insertBefore(wrap,ta.nextSibling);
+      const count=()=>{ const n=String(ta.value||'').length; $('#pwCount',wrap).textContent=n+' 字'; };
+      ta.addEventListener('input',count); count();
+      const sel=$('select',wrap); sel.addEventListener('change',()=>{ const v=sel.value; if(!v) return; const cur=String(ta.value||'').trim(); ta.value=cur?(cur+'\\n'+v):v; ta.dispatchEvent(new Event('input',{bubbles:true})); sel.value=''; ta.focus(); });
+      $('[data-pw="clear"]',wrap).addEventListener('click',()=>{ ta.value=''; ta.dispatchEvent(new Event('input',{bubbles:true})); ta.focus(); });
+      $('[data-pw="copy"]',wrap).addEventListener('click',async()=>{ const v=String(ta.value||''); if(!v){ Toast.info('暂无提示词'); return; } const ok=await copyToClipboard(v); if(ok) Toast.success('已复制提示词'); });
+    };
+    enhancePrompt();
+    promptObserver=new MutationObserver(()=>enhancePrompt());
+    const pf=$('#paramForm'); if(pf) promptObserver.observe(pf,{childList:true,subtree:true});
+
+    /* 3) 参考素材池：补充状态条与“一键上传”，依赖现有 refState，不改变提交结构 */
+    const enhanceRefs=()=>{
+      const form=$('#paramForm'); if(!form) return;
+      $$('.form-group',form).forEach(group=>{
+        const grid=group.querySelector('[data-ref-grid]');
+        if(!grid) return;
+        if(group.querySelector('.ref-status-bar')) return;
+        const key=grid.dataset.refGrid;
+        const bar=document.createElement('div'); bar.className='ref-status-bar';
+        const render=()=>{
+          const refs=(UI.getRefs?.(key)||[]);
+          const ready=refs.filter(r=>r.uploaded).length, pending=refs.filter(r=>!r.uploaded).length;
+          let state=pending?'rs-pending':(refs.length?'rs-ready':'');
+          bar.innerHTML='<span class="'+state+'">素材 '+refs.length+(pending?' · '+pending+' 张待上传':' · 已就绪')+'</span>'+(pending?'<button type="button" class="rs-upload">全部上传</button>':'');
+          const ub=bar.querySelector('.rs-upload'); if(ub) ub.onclick=()=>UI.uploadPendingRefs(key).then(render);
+        };
+        grid.parentNode.appendChild(bar); render();
+        const mo=new MutationObserver(render); mo.observe(grid,{childList:true,subtree:true});
+      });
+    };
+    enhanceRefs();
+    if(!UI.__v7RefPatched){
+      UI.__v7RefPatched=true;
+      const oldRenderRef=UI.renderRefGrid;
+      if(typeof oldRenderRef==='function') UI.renderRefGrid=function(){ const r=oldRenderRef.apply(this,arguments); setTimeout(enhanceRefs,0); return r; };
+    }
+
+    /* 4) 结果/历史：直接增加“复制参数”和“再次使用”，减少进入详情的操作 */
+    const enhanceHistoryActions=()=>{
+      $$('#historyList .history-item').forEach(item=>{
+        if(item.querySelector('.history-quick-actions')) return;
+        const h=Store.getHistory().find(x=>x.id===item.dataset.id); if(!h) return;
+        const meta=item.querySelector('.hi-meta'); if(!meta) return;
+        const box=document.createElement('div'); box.className='history-quick-actions';
+        box.innerHTML='<button type="button" data-ha="reuse">再用参数</button><button type="button" data-ha="copy">复制参数</button>';
+        meta.appendChild(box);
+        box.querySelector('[data-ha="reuse"]').onclick=(e)=>{e.stopPropagation(); if(h.taskId) UI.retryTask(h.taskId); else Toast.info('这条历史没有关联任务');};
+        box.querySelector('[data-ha="copy"]').onclick=async(e)=>{e.stopPropagation(); const ok=await copyToClipboard(JSON.stringify(h.params||{},null,2)); if(ok) Toast.success('已复制参数 JSON');};
+      });
+    };
+    const oldRenderHistory=UI.renderHistory;
+    if(typeof oldRenderHistory==='function' && !UI.__v7HistoryPatched){
+      UI.__v7HistoryPatched=true;
+      UI.renderHistory=function(){ const r=oldRenderHistory.apply(this,arguments); setTimeout(enhanceHistoryActions,0); return r; };
+    }
+    enhanceHistoryActions();
+
+    /* 5) 编辑器增强：蒙版预览 + 快速扩图方向 + 更可靠的双层撤销快照 */
+    const addEditorTools=()=>{
+      const toolbar=$('#outpaintControls');
+      if(toolbar && !toolbar.querySelector('.editor-direction-pad')){
+        const pad=document.createElement('div'); pad.className='editor-mask-tools';
+        pad.innerHTML='<span style="font-size:10px;color:var(--text-dim)">快速方向</span><div class="editor-direction-pad"><button class="empty" type="button">·</button><button type="button" data-dir="top">↑</button><button class="empty" type="button">·</button><button type="button" data-dir="left">←</button><button type="button" data-dir="clear">＋</button><button type="button" data-dir="right">→</button><button class="empty" type="button">·</button><button type="button" data-dir="bottom">↓</button><button class="empty" type="button">·</button></div>';
+        toolbar.appendChild(pad);
+        pad.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{
+          ['dirTop','dirBottom','dirLeft','dirRight'].forEach(id=>{const el=$('#'+id);if(el)el.checked=false;});
+          if(b.dataset.dir!=='clear'){const map={top:'dirTop',bottom:'dirBottom',left:'dirLeft',right:'dirRight'}; const el=$('#'+map[b.dataset.dir]);if(el)el.checked=true;}
+        });
+      }
+      const canvasWrap=$('#editorCanvasWrap');
+      if(canvasWrap && !canvasWrap.querySelector('.mask-preview-toggle')){
+        const row=document.createElement('div'); row.className='editor-mask-tools mask-preview-toggle';
+        row.innerHTML='<span style="font-size:10px;color:var(--text-dim)">预览</span><button type="button" id="maskPreviewToggle">蒙版</button>';
+        canvasWrap.appendChild(row);
+        let on=false; const btn=$('#maskPreviewToggle');
+        btn.onclick=()=>{ on=!on; btn.classList.toggle('active',on); const c=$('#editorCanvas'); if(c) c.style.opacity=on?'1':'0.92'; if(on && c) { c.style.mixBlendMode='multiply'; } else if(c){ c.style.mixBlendMode='normal'; } };
+      }
+    };
+    addEditorTools();
+    const oldOpenEditor=UI.openEditor;
+    if(typeof oldOpenEditor==='function' && !UI.__v7EditorPatched){ UI.__v7EditorPatched=true; UI.openEditor=function(){ const r=oldOpenEditor.apply(this,arguments); setTimeout(addEditorTools,30); return r; }; }
+
+    /* 双层 undo：把 maskOps 同时存入快照，撤销后重新合成不会残留旧操作 */
+    if(UI.editor && typeof UI.editor.pushUndo==='function' && !UI.editor.__v7UndoPatched){
+      UI.editor.__v7UndoPatched=true;
+      const oldPush=UI.editor.pushUndo;
+      UI.editor.pushUndo=function(){
+        oldPush.apply(this,arguments);
+        const snap=this.undoStack[this.undoStack.length-1]; if(snap) snap.maskOps=JSON.parse(JSON.stringify(this.maskOps||[]));
+      };
+      const oldUndo=UI.editor.undoEditor;
+      UI.editor.undoEditor=function(){
+        if(this.undoStack.length<=1){ Toast.info('已是最早状态'); return; }
+        this.undoStack.pop(); const prev=this.undoStack[this.undoStack.length-1]; if(!prev) return;
+        this.canvas.width=prev.mask.width; this.canvas.height=prev.mask.height; this.ctx.clearRect(0,0,prev.mask.width,prev.mask.height); this.ctx.drawImage(prev.mask,0,0);
+        this.bgCanvas.width=prev.bg.width; this.bgCanvas.height=prev.bg.height; this.bgCtx.clearRect(0,0,prev.bg.width,prev.bg.height); this.bgCtx.drawImage(prev.bg,0,0);
+        this.maskOps=JSON.parse(JSON.stringify(prev.maskOps||[]));
+      };
+    }
+
+    /* 6) 页面失焦时给用户明确提示，避免误以为任务停止；轮询逻辑本身不变 */
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden) return;
+      const running=Store.getTasks().filter(t=>t.status==='running').length;
+      if(running) setTimeout(()=>Toast.info(`已有 ${running} 个任务在生成中，轮询会继续运行`),120);
+    });
+
+    /* 7) 窗口级错误分类增强：不吞原错误，只补充可操作建议 */
+    const oldShowError=UI.showErrorToastWithRetry;
+    if(typeof oldShowError==='function' && !UI.__v7ErrPatched){
+      UI.__v7ErrPatched=true;
+      UI.showErrorToastWithRetry=function(taskId,modelName,errMsg){
+        const s=String(errMsg||'');
+        let hint=''; let action=null;
+        if(/401|403|密钥|token|authorization/i.test(s)){hint='检查 API 密钥'; action=()=>$('#apiKeyInput')?.focus();}
+        else if(/余额|quota|insufficient/i.test(s)){hint='检查账户余额';}
+        else if(/cors|failed to fetch|network|网络/i.test(s)){hint='检查网络或 GitHub Pages CORS 代理配置';}
+        else if(/429|rate/i.test(s)){hint='请求过频，系统会自动退避';}
+        if(hint) setTimeout(()=>Toast.info(`${modelName}：${hint}`),140);
+        return oldShowError.apply(this,arguments);
+      };
+    }
+
+    /* 首次载入完成后再执行一次动态增强 */
+    setTimeout(()=>{ enhancePrompt(); enhanceRefs(); enhanceHistoryActions(); addEditorTools(); refreshTaskCount(); },50);
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else setTimeout(boot,0);
+})();
+
+
+/* ========== V8 优化：Prompt「灵感」快选，不新增复杂弹窗 ========== */
+const PROMPT_INSPIRATIONS = [
+  '高质感商业摄影，主体清晰，光线自然，细节丰富，构图干净',
+  '高级极简视觉，留白充足，材质真实，细节精致',
+  '电影感光影，层次分明，色彩自然，画面具有叙事感',
+  '电商主视觉，产品突出，背景整洁，商业广告质感',
+  '专业棚拍效果，柔和轮廓光，真实材质，高清细节'
+];
+function insertPromptInspiration(key){
+  const ta=document.querySelector(`textarea[data-key="${CSS.escape(key)}"]`); if(!ta) return;
+  const text=PROMPT_INSPIRATIONS[Math.floor(Math.random()*PROMPT_INSPIRATIONS.length)];
+  const cur=String(ta.value||'').trim();
+  ta.value=cur ? cur+(cur.endsWith('。')?'':'，')+text : text;
+  ta.dispatchEvent(new Event('input',{bubbles:true}));
+  try{Store.addPromptHistory?.(ta.value.trim());}catch{}
+  Toast.success('已加入灵感');
+}
+
+
+/* 灵感按钮采用事件委托，避免动态表单重复绑定监听器。 */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-prompt-inspire]'); if(b){e.preventDefault(); e.stopPropagation(); insertPromptInspiration(b.dataset.promptInspire);}});
+
+
+
+/* ========== V10 精简稳定性收口：只修实际问题，不新增复杂产品层 ========== */
+(function installLeanHardening(){
+  if (window.__LEAN_HARDENING_V10__) return;
+  window.__LEAN_HARDENING_V10__ = true;
+
+  const jsonNormalize = (payload) => {
+    if (!payload || typeof payload !== 'object') return payload;
+    if (typeof payload.data === 'string') {
+      const raw = payload.data.trim();
+      if (raw && (raw.startsWith('{') || raw.startsWith('['))) {
+        try { return { ...payload, data: JSON.parse(raw) }; } catch (_) {}
+      }
+    }
+    return payload;
+  };
+
+  const readApiError = (payload, prefix='API') => {
+    const p = jsonNormalize(payload);
+    if (p?.code != null && Number(p.code) !== 200) {
+      const e = new Error(`${prefix}_${p.code}:${p.msg || ''}`);
+      e.apiCode = Number(p.code);
+      e.apiMsg = p.msg || '';
+      return e;
+    }
+    return null;
+  };
+
+  // 统一异步提交：HTTP、429、API code、data:string 一次处理。
+  if (window.Api && typeof Api.submit === 'function') {
+    Api.submit = async function(endpoint, body) {
+      const key = (window.Store?.getApiKey ? Store.getApiKey() : '');
+      if (!key) throw new Error('NO_API_KEY');
+      let r;
+      try {
+        r = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, {
+          method:'POST',
+          headers:{ Authorization:key, 'Content-Type':'application/json' },
+          body:JSON.stringify(body)
+        });
+      } catch (e) {
+        if (e?.message === 'REQUEST_TIMEOUT') throw e;
+        throw new Error('NETWORK_OR_CORS');
+      }
+      if (r.status === 429) {
+        const e = new Error('RATE_LIMITED');
+        e.retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10) || 0;
+        throw e;
+      }
+      if (!r.ok) throw new Error(`HTTP_${r.status}`);
+      let payload;
+      try { payload = jsonNormalize(await r.json()); }
+      catch { throw new Error('INVALID_JSON'); }
+      const apiErr = readApiError(payload, 'API');
+      if (apiErr) throw apiErr;
+      return payload;
+    };
+  }
+
+  // 同步接口与异步接口使用完全一致的错误语义。
+  if (window.Api && typeof Api.syncCall === 'function') {
+    Api.syncCall = async function(endpoint, body) {
+      const key = (window.Store?.getApiKey ? Store.getApiKey() : '');
+      if (!key) throw new Error('NO_API_KEY');
+      let r;
+      try {
+        r = await this.fetchWithTimeout(CONFIG.API_BASE + endpoint, {
+          method:'POST',
+          headers:{ Authorization:key, 'Content-Type':'application/json' },
+          body:JSON.stringify(body)
+        });
+      } catch (e) {
+        if (e?.message === 'REQUEST_TIMEOUT') throw e;
+        throw new Error('NETWORK_OR_CORS');
+      }
+      if (r.status === 429) {
+        const e = new Error('RATE_LIMITED');
+        e.retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10) || 0;
+        throw e;
+      }
+      if (!r.ok) throw new Error(`HTTP_${r.status}`);
+      let payload;
+      try { payload = jsonNormalize(await r.json()); }
+      catch { throw new Error('INVALID_JSON'); }
+      const apiErr = readApiError(payload, 'API');
+      if (apiErr) throw apiErr;
+      return payload;
+    };
+  }
+
+  // 查询接口统一兼容 data:string，并保留限流与 API 错误码。
+  if (window.Api && typeof Api.queryDetail === 'function') {
+    Api.queryDetail = async function(id) {
+      const key = (window.Store?.getApiKey ? Store.getApiKey() : '');
+      if (!key) throw new Error('NO_API_KEY');
+      let r;
+      try {
+        r = await this.fetchWithTimeout(
+          `${CONFIG.API_BASE}${CONFIG.DETAIL_PATH}?id=${encodeURIComponent(id)}`,
+          { method:'GET', headers:{Authorization:key,'Content-Type':'application/json'}, cache:'no-store' }
+        );
+      } catch (e) {
+        if (e?.message === 'REQUEST_TIMEOUT') throw e;
+        throw new Error('NETWORK_OR_CORS');
+      }
+      if (r.status === 429) {
+        const e = new Error('RATE_LIMITED');
+        e.retryAfter = parseInt(r.headers.get('Retry-After') || '0', 10) || 0;
+        throw e;
+      }
+      if (!r.ok) throw new Error(`QUERY_HTTP_${r.status}`);
+      let payload;
+      try { payload = jsonNormalize(await r.json()); }
+      catch { throw new Error('INVALID_JSON'); }
+      const apiErr = readApiError(payload, 'QUERY_API');
+      if (apiErr) throw apiErr;
+      return payload;
+    };
+  }
+
+  // 移动端“刷新”按钮真正查询运行任务，而不是仅重绘页面。
+  if (typeof poller !== 'undefined' && poller && typeof poller.refresh === 'function') {
+    const btn = document.getElementById('mobileTaskRefresh');
+    if (btn && !btn.dataset.queryBound) {
+      btn.dataset.queryBound = '1';
+      btn.addEventListener('click', async (ev) => {
+        ev.stopPropagation();
+        const running = Store.getTasks().filter(t => t.status === 'running' && t.apiId);
+        if (!running.length) { Toast.info('当前没有运行中的任务'); return; }
+        btn.disabled = true;
+        const old = btn.textContent;
+        btn.textContent = '查询中…';
+        try { await Promise.allSettled(running.map(t => poller.refresh(t.id))); }
+        finally { btn.disabled = false; btn.textContent = old; UI.renderResults(); }
+      }, true);
+    }
+  }
+
+  // 移动端历史“再用参数”：真正恢复当时的模型与字段，不依赖不存在的旧扩展方法。
+  if (window.UI && !UI.reuseHistoryParams) {
+    UI.reuseHistoryParams = function(h) {
+      if (!h) return;
+      const tab = h.tab || (h.type === 'image' ? 'image' : h.type === 'video' ? 'video' : 'audio');
+      if (typeof this.switchTab === 'function') this.switchTab(tab);
+      if (h.modelId && typeof this.renderForm === 'function') this.renderForm(h.modelId);
+      const model = this.model || this.currentModel;
+      const params = h.params || {};
+      const form = document.getElementById('paramForm');
+      if (!form || !model?.params) return;
+      for (const p of model.params) {
+        if (!(p.key in params)) continue;
+        const g = form.querySelector(`.form-group[data-key="${CSS.escape(p.key)}"]`);
+        if (!g) continue;
+        const v = params[p.key];
+        if (p.type === 'ref-image') {
+          const refs = Array.isArray(v) ? v : String(v || '').split(',').map(s=>s.trim()).filter(Boolean);
+          if (typeof this.setRefs === 'function') {
+            this.setRefs(p.key, refs.map(u => typeof u === 'object' ? u : ({id:'r_'+Math.random().toString(36).slice(2),kind:'url',src:u,uploaded:true,remote:u,name:'历史参考'})));
+            this.refreshRefGrid?.(p.key);
+          }
+        } else if (p.type === 'range') {
+          const el = g.querySelector(`[data-key="${CSS.escape(p.key)}"]`);
+          if (el) { el.value = v; el.dispatchEvent(new Event('input',{bubbles:true})); }
+        } else {
+          const el = g.querySelector(`[data-key="${CSS.escape(p.key)}"]`);
+          if (el) { el.value = Array.isArray(v) ? v.join(',') : String(v ?? ''); el.dispatchEvent(new Event('input',{bubbles:true})); }
+        }
+      }
+      this.updateEstimate?.();
+    };
+  }
+
+  // 移动端 Prompt 工具同时支持 prompt / text（例如 TTS）。
+  const mobilePromptHost = document.getElementById('mobilePromptTools');
+  if (mobilePromptHost && typeof window.addPromptTools === 'function') {
+    // 保持已有函数，不重复绑定事件；这里只标记可扩展入口。
+    mobilePromptHost.dataset.hardened = '1';
+  }
+
+  // 所有上传参考素材至少在最终提交前再次检查公网 URL，避免 blob/file 直接进入 API。
+  if (window.normalizeAndValidateApiBody && !window.__hardeningBodyCheck__) {
+    window.__hardeningBodyCheck__ = true;
+    const originalValidate = window.normalizeAndValidateApiBody;
+    window.normalizeAndValidateApiBody = function(model, input) {
+      const out = originalValidate(model, input);
+      const body = out?.body || (input ? {...input} : {});
+      const errors = Array.isArray(out?.errors) ? [...out.errors] : [];
+      const urlKeys = ['urls','images','videos','audios','subjects','image_url','first_frame','last_frame','firstFrameUrl','lastFrameUrl','video_url','video','audio_url','audioUrl','videoUrl'];
+      const values = key => Array.isArray(body[key]) ? body[key] : (typeof body[key] === 'string' && body[key].includes(',') ? body[key].split(',').map(s=>s.trim()).filter(Boolean) : [body[key]]);
+      for (const key of urlKeys) {
+        if (body[key] == null || body[key] === '') continue;
+        for (const v of values(key)) {
+          if (!v) continue;
+          if (typeof v === 'string' && /^(blob:|data:|file:)/i.test(v)) {
+            if (!errors.some(e=>String(e).includes(key))) errors.push(`${key} 必须是公网 URL`);
+          }
+        }
+      }
+      return { body, errors };
+    };
+  }
+})();
+
 </script>
 </body>
 </html>

@@ -1016,6 +1016,7 @@ const UI = {
     $('#modelBtnText').textContent = MODELS[tab].find(m => m.id === mid).name;
     this.restoreFormFromCache();
     this.updateEstimate();
+    this.renderPresets();
   },
 
   renderForm(mid) {
@@ -1046,8 +1047,8 @@ const UI = {
     });
     // 绑定事件
     $$('[data-key]', f).forEach(el => { el.oninput = () => { if (el.type === 'range') { const rv = $('#rv-'+el.dataset.key); if (rv) rv.textContent = el.value + (this.model.params.find(p=>p.key===el.dataset.key)?.unit||''); } this.updateEstimate(); }; });
-    $$('.ref-add-btn', f).forEach(b => b.onclick = () => { const inp = $('#refFile-'+b.dataset.key); if (inp) inp.click(); });
-    $$('input[type=file]', f).forEach(inp => inp.onchange = e => { Array.from(e.target.files||[]).forEach(f => this.addRef(f, inp.dataset.key)); e.target.value=''; });
+    $$('.ref-add', f).forEach(b => b.onclick = () => { const inp = $('#refFile-'+b.dataset.key); if (inp) inp.click(); });
+    $$('input[type=file]', f).forEach(inp => inp.onchange = e => { Array.from(e.target.files||[]).forEach(file => this.addRef(file, inp.id.replace('refFile-',''))); e.target.value=''; });
     $$('.ref-del', f).forEach(b => b.onclick = e => { e.stopPropagation(); this.removeRef(b.dataset.key, b.dataset.rid); });
   },
 
@@ -1058,7 +1059,7 @@ const UI = {
       const body = r.kind==='local' ? `<img src="${esc(r.src)}" loading="lazy">` : '';
       return `<div class="ref-item">${badge}${body}<button class="ref-del" data-key="${key}" data-rid="${r.id}">×</button></div>`;
     }).join('') : '';
-    const empty = refs.length ? '' : '<div class="ref-empty">点下方 + 添加参考图</div>';
+    const empty = refs.length ? '' : '';
     const addBtn = `<div class="ref-add" data-key="${key}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><input type="file" id="refFile-${key}" accept="image/*" multiple style="display:none">`;
     return `<div class="ref-grid" data-key="${key}">${items}${empty}${addBtn}</div><div class="ref-progress" id="rp-${key}"><div class="ring"></div><span id="rpt-${key}">上传中…</span></div>`;
   },
@@ -1074,7 +1075,7 @@ const UI = {
   },
   removeRef(key, id) { const refs = this.getRefs(key); const i = refs.findIndex(r => r.id === id); if (i >= 0) refs.splice(i, 1); this.refreshRefGrid(key); },
   refreshRefGrid(key) { const grid = $(`.ref-grid[data-key="${key}"]`); if (grid) { const wrap = grid.parentElement; wrap.innerHTML = this.renderRefGrid(key); this.bindRefEvents(key); } },
-  bindRefEvents(key) { const f = $('#paramForm'); $$('.ref-add-btn', f).forEach(b => b.onclick = () => { const inp = $('#refFile-'+b.dataset.key); if (inp) inp.click(); }); $$('input[type=file]', f).forEach(inp => inp.onchange = e => { Array.from(e.target.files||[]).forEach(f => this.addRef(f, inp.dataset.key)); e.target.value=''; }); $$('.ref-del', f).forEach(b => b.onclick = e => { e.stopPropagation(); this.removeRef(b.dataset.key, b.dataset.rid); }); },
+  bindRefEvents(key) { const f = $('#paramForm'); $$('.ref-add', f).forEach(b => b.onclick = () => { const inp = $('#refFile-'+b.dataset.key); if (inp) inp.click(); }); $$('input[type=file]', f).forEach(inp => inp.onchange = e => { Array.from(e.target.files||[]).forEach(file => this.addRef(file, inp.id.replace('refFile-',''))); e.target.value=''; }); $$('.ref-del', f).forEach(b => b.onclick = e => { e.stopPropagation(); this.removeRef(b.dataset.key, b.dataset.rid); }); },
 
   collectParamsSync() {
     const body = {}; const f = $('#paramForm'); if (!f) return body;
@@ -1291,8 +1292,44 @@ const UI = {
 
   // ===== 预设 =====
   renderPresets() {
+    // 内置预设（风格选择器）
+    const builtin = BUILTIN_PRESETS[this.tab] || [];
+    const builtinHtml = builtin.length ? builtin.map((p, i) => `<button class="act" data-builtin="${i}" style="font-size:11px;padding:6px 8px;flex-shrink:0;border-radius:8px;">${esc(p.name)}</button>`).join('') : '';
+    // 用户预设
+    const user = Store.getPresets();
+    const userHtml = user.length ? user.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('') : '';
+    // 渲染到参数视图
+    let presetArea = $('#builtinPresets');
+    if (!presetArea) {
+      presetArea = document.createElement('div');
+      presetArea.id = 'builtinPresets';
+      presetArea.style.cssText = 'display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;-webkit-overflow-scrolling:touch;';
+      const label = document.createElement('div');
+      label.className = 'section-label';
+      label.textContent = '常用预设';
+      const form = $('#paramForm');
+      form.parentNode.insertBefore(label, form);
+      form.parentNode.insertBefore(presetArea, form);
+    }
+    presetArea.innerHTML = builtinHtml;
+    $$('#builtinPresets .act').forEach(b => b.onclick = () => {
+      const idx = +b.dataset.builtin;
+      const preset = builtin[idx];
+      // 填入 prompt
+      const promptKey = this.model.params.find(p => p.key === 'prompt' || p.key === 'text')?.key;
+      if (promptKey) {
+        const ta = $(`textarea[data-key="${promptKey}"]`);
+        if (ta) { ta.value = preset.prompt; ta.dispatchEvent(new Event('input')); }
+      }
+      // 高亮选中
+      $$('#builtinPresets .act').forEach(x => x.style.background = '');
+      b.style.background = 'var(--brand-soft)';
+      b.style.color = 'var(--brand)';
+      Toast.success(`已套用：${preset.name}`);
+    });
+    // 用户预设下拉
     const sel = $('#presetSelect');
-    sel.innerHTML = '<option value="">预设</option>' + Store.getPresets().map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    sel.innerHTML = '<option value="">我的预设</option>' + userHtml;
   },
   loadPreset(id) {
     const p = Store.getPresets().find(x => x.id === id); if (!p) return;
@@ -1495,6 +1532,32 @@ const UI = {
     } catch (e) { Toast.error('失败: ' + e.message); }
     finally { btn.disabled = false; btn.textContent = '用作参考图'; }
   }
+};
+
+// ==================== 内置预设 ====================
+const BUILTIN_PRESETS = {
+  image: [
+    { name: '糊转清晰', prompt: '将这张模糊的图片提升清晰度，增强细节和锐度，保持原有内容和构图不变' },
+    { name: '文本还原', prompt: '识别并还原图片中的所有文字内容，保持文字清晰可读，修复模糊或损坏的文字' },
+    { name: '提取主体', prompt: '提取图片中的主要主体对象，去除背景，保留主体完整清晰' },
+    { name: '提取背景', prompt: '提取图片中的背景部分，去除前景主体，保持背景完整' },
+    { name: '去掉文字', prompt: '去除图片中的所有文字和水印，修复被文字遮挡的区域，保持画面自然' },
+    { name: '转线稿图', prompt: '将这张图片转换为黑白线稿图，保留主要轮廓和细节线条' },
+    { name: '修老照片', prompt: '修复这张老照片的损伤、划痕和褪色，增强清晰度，恢复原有色彩' },
+    { name: '海报生成', prompt: '基于这张图片的内容，生成一张精美的海报，添加标题文字和装饰元素' }
+  ],
+  video: [
+    { name: '电影质感', prompt: '电影级画面质感，浅景深，柔和光影，色调偏暖，24fps电影感' },
+    { name: '动画风格', prompt: '日本动画风格，鲜艳色彩，柔和线条，明亮光影' },
+    { name: '纪录片', prompt: '纪录片风格，真实自然的光影，手持摄影感，偏冷色调' },
+    { name: '广告大片', prompt: '商业广告风格，高质感画面，精致光影，色彩饱和度高' }
+  ],
+  audio: [
+    { name: '标准播报', prompt: '新闻播报风格，语速适中，声音清晰有力' },
+    { name: '温柔朗读', prompt: '温柔轻柔的朗读风格，语速偏慢，适合睡前故事' },
+    { name: '激情演讲', prompt: '充满激情的演讲风格，语速偏快，声音洪亮有力' },
+    { name: '广告配音', prompt: '广告配音风格，声音明亮，语速适中，有感染力' }
+  ]
 };
 
 // ==================== 启动 ====================

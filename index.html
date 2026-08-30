@@ -1,10 +1,10 @@
-<!-- AI 多媒体生成工作台 · 速创 API · v5.3 (撤销修复扩图 + 编辑结果填入当前选定模型) -->
+<!-- AI 多媒体生成工作台 · 速创 API · v6.0 (撤销修复扩图 + 编辑结果填入当前选定模型) -->
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 多媒体生成工作台 v5.3 · 速创 API</title>
+<title>AI 多媒体生成工作台 v6.0 · 速创 API</title>
 <style>
 /* ============================================================
    主题变量
@@ -1907,28 +1907,269 @@ select option { background: var(--bg-elev); color: var(--text); }
 /* ============================================================
    响应式
    ============================================================ */
-@media (max-width: 768px) {
-  .app-header { padding: 0 10px; gap: 8px; height: 52px; }
+/* ============================================================
+   手机端定制（≤640px）
+   ============================================================ */
+
+/* 手机端隐藏的元素 */
+.mobile-only { display: none; }
+
+@media (max-width: 640px) {
+  /* ========== 基础重置 ========== */
+  .app-header { padding: 0 12px; height: 48px; gap: 8px; }
   .brand span:not(.brand-logo) { display: none; }
-  .api-key-wrap { max-width: none; }
-  .header-btn span { display: none; }
-  .app-body {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+  .brand-logo { width: 28px; height: 28px; font-size: 14px; }
+  /* 隐藏顶栏的 API Key / GitHub Token 输入框和次要按钮 */
+  .api-key-wrap { display: none; }
+  #soundToggleBtn, #themeToggleBtn, #statsBtn { display: none; }
+  #historyToggleBtn { display: none; }
+  /* 显示设置按钮 */
+  .mobile-only { display: flex; }
+  .mobile-settings-btn {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
   }
+  .mobile-settings-btn svg { width: 18px; height: 18px; }
+
+  /* ========== 分段控件（参数⇄结果） ========== */
+  .mobile-segment {
+    display: flex;
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 2px;
+    margin: 0 12px;
+    gap: 2px;
+  }
+  .mobile-segment-btn {
+    flex: 1;
+    padding: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: all var(--transition);
+  }
+  .mobile-segment-btn.active {
+    background: var(--surface);
+    color: var(--brand-1);
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  }
+
+  /* ========== 主体布局 ========== */
+  .app-body {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr !important;
+    height: calc(100vh - 48px) !important;
+    overflow: hidden;
+  }
+  .app-body.with-guide { height: calc(100vh - 48px - 36px) !important; }
+  /* 参数面板和结果面板互斥显示 */
   .param-panel {
     border-right: none;
     border-bottom: 1px solid var(--border);
-    max-height: 55vh;
+    max-height: none !important;
+    height: 100%;
+    overflow-y: auto;
+    display: none;
   }
-  .result-list { padding: 12px; }
-  .toast-container { right: 10px; left: 10px; max-width: none; top: 60px; }
-  .result-media img, .result-media video { max-height: 320px; }
-  .compare-grid.cols-2, .compare-grid.cols-3 { grid-template-columns: 1fr; }
+  .param-panel.mobile-active { display: flex; }
+  .result-panel {
+    height: 100%;
+    overflow-y: auto;
+    display: none;
+  }
+  .result-panel.mobile-active { display: flex; }
+
+  /* ========== 参数面板适配 ========== */
+  .param-content { padding: 12px; }
+  .tabs { padding: 8px 12px; gap: 4px; }
+  .tab { padding: 8px; font-size: 12px; border-radius: 999px; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { font-size: 12px; }
+  input, textarea, select { padding: 10px; font-size: 14px; }
+  /* range 滑块加大触控 */
+  .range-row input[type="range"] { height: 6px; }
+  .range-row input[type="range"]::-webkit-slider-thumb { width: 24px; height: 24px; }
+  .range-row input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; }
+
+  /* ========== 生成按钮浮动条 ========== */
+  .generate-row {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-elev);
+    padding: 8px 12px 12px;
+    border-top: 1px solid var(--border);
+    z-index: 10;
+  }
+  .generate-btn { padding: 14px; font-size: 15px; }
+
+  /* ========== 底部 Tab Bar ========== */
+  .mobile-tab-bar {
+    display: flex;
+    height: 56px;
+    background: var(--bg-elev);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+  }
+  .mobile-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--text-dim);
+    font-size: 10px;
+    transition: color var(--transition);
+    position: relative;
+  }
+  .mobile-tab svg { width: 20px; height: 20px; }
+  .mobile-tab.active { color: var(--brand-1); }
+  .mobile-tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 24px;
+    height: 3px;
+    background: var(--brand-1);
+    border-radius: 0 0 3px 3px;
+  }
+
+  /* ========== 结果区 ========== */
+  .result-list { padding: 8px; gap: 10px; }
+  .result-list {
+    grid-template-columns: 1fr !important;
+  }
+  .result-media img, .result-media video { max-height: 280px; }
+  .result-actions { gap: 4px; }
+  .action-btn { padding: 8px 10px; font-size: 11px; }
+  .action-btn svg { width: 12px; height: 12px; }
+  .card-header { padding: 10px 12px; }
+  .card-body { padding: 10px 12px; }
+
+  /* ========== 并行任务面板 ========== */
   .atp-grid { grid-template-columns: 1fr; }
+  .active-tasks-panel { margin: 0 0 8px; }
+
+  /* ========== 设置抽屉（底部滑出） ========== */
+  .mobile-settings-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 90;
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .mobile-settings-overlay.show { display: block; opacity: 1; }
+  .mobile-settings-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-elev);
+    border-radius: 16px 16px 0 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform 280ms cubic-bezier(.4,0,.2,1);
+    padding: 20px 16px 30px;
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  }
+  .mobile-settings-sheet.show { transform: translateY(0); }
+  .mobile-settings-sheet h3 {
+    margin: 0 0 16px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .mobile-settings-group { margin-bottom: 16px; }
+  .mobile-settings-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .mobile-settings-group input {
+    font-size: 13px;
+    font-family: var(--font-mono);
+  }
+  .mobile-settings-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .mobile-settings-actions .action-btn {
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  /* ========== 历史全屏 ========== */
+  .history-sidebar {
+    width: 100%;
+    max-width: 100vw;
+    top: 0;
+  }
+
+  /* ========== 图片编辑器 ========== */
+  .editor-modal-content { max-width: 100%; max-height: 100vh; border-radius: 0; }
+  .editor-toolbar { flex-wrap: wrap; gap: 4px; padding: 6px; }
+  .tool-group { padding-right: 6px; gap: 2px; }
+  .tool-btn { padding: 6px 8px; font-size: 11px; }
+  .size-btn { padding: 5px 7px; font-size: 10px; }
+  .color-btn { width: 28px; height: 28px; }
+  .editor-canvas-wrap { max-height: 40vh; min-height: 150px; }
+  #editorCanvas { max-height: 40vh; }
+  #editorBgCanvas { max-height: 40vh; }
+  .editor-prompt-row textarea { min-height: 50px; }
+
+  /* ========== 统计 ========== */
   .stats-summary { grid-template-columns: 1fr 1fr 1fr; }
   .stats-card-main { grid-column: 1 / -1; }
-  .stats-bar-row { grid-template-columns: 100px 1fr 70px; }
+  .stats-bar-row { grid-template-columns: 80px 1fr 60px; }
+  .stats-value { font-size: 18px; }
+  .stats-value-sm { font-size: 15px; }
+
+  /* ========== Toast ========== */
+  .toast-container { right: 8px; left: 8px; max-width: none; top: 56px; }
+  .toast { font-size: 12px; padding: 8px 12px; }
+
+  /* ========== 对比模式 ========== */
+  .compare-grid.cols-2, .compare-grid.cols-3 { grid-template-columns: 1fr; }
+
+  /* ========== Modal ========== */
+  .modal-content { max-width: 100%; max-height: 95vh; border-radius: 12px; }
+
+  /* ========== 引导横幅 ========== */
+  .guide-banner { padding: 6px 12px; font-size: 12px; }
+  .guide-banner .guide-icon { font-size: 14px; }
+
+  /* ========== 预估费用 ========== */
+  .estimate-cost { font-size: 11px; }
+
+  /* ========== 底部留出 Tab Bar 空间 ========== */
+  .result-panel { padding-bottom: 56px; }
+  .param-panel { padding-bottom: 56px; }
+}
+
+/* 平板（641-1024px）：保留双列但收窄 */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .app-body { grid-template-columns: 360px 1fr !important; }
+  .mobile-segment { display: none; }
+  .mobile-tab-bar { display: none; }
+  .mobile-settings-btn { display: none; }
 }
 </style>
 </head>
@@ -1961,6 +2202,10 @@ select option { background: var(--bg-elev); color: var(--text); }
     </div>
   </div>
   <div class="header-spacer"></div>
+  <!-- 手机端设置按钮 -->
+  <button class="mobile-only mobile-settings-btn" id="mobileSettingsBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
   <!-- GitHub 图床 Token -->
   <div class="api-key-wrap" style="max-width:260px">
     <input type="password" id="ghTokenInput" placeholder="GitHub 图床 Token（可选）" autocomplete="off" spellcheck="false" style="font-size:12px">
@@ -2081,6 +2326,49 @@ select option { background: var(--bg-elev); color: var(--text); }
   </main>
 </div>
 
+<!-- ============== 手机端分段控件 ============== -->
+<div class="mobile-segment mobile-only" id="mobileSegment">
+  <button class="mobile-segment-btn active" data-seg="param">参数</button>
+  <button class="mobile-segment-btn" data-seg="result">结果</button>
+</div>
+
+<!-- ============== 手机端底部 Tab Bar ============== -->
+<div class="mobile-tab-bar" id="mobileTabBar">
+  <button class="mobile-tab active" data-mtab="image">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    图片
+  </button>
+  <button class="mobile-tab" data-mtab="video">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+    视频
+  </button>
+  <button class="mobile-tab" data-mtab="audio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+    音频
+  </button>
+</div>
+
+<!-- ============== 手机端设置抽屉 ============== -->
+<div class="mobile-settings-overlay" id="mobileSettingsOverlay"></div>
+<div class="mobile-settings-sheet" id="mobileSettingsSheet">
+  <h3>设置</h3>
+  <div class="mobile-settings-group">
+    <label>速创 API 密钥</label>
+    <input type="password" id="mobileApiKey" placeholder="输入速创 API 密钥" autocomplete="off">
+  </div>
+  <div class="mobile-settings-group">
+    <label>GitHub 图床 Token</label>
+    <input type="password" id="mobileGhToken" placeholder="ghp_..." autocomplete="off">
+  </div>
+  <div class="mobile-settings-actions">
+    <button class="action-btn" id="mobileThemeBtn">切换主题</button>
+    <button class="action-btn" id="mobileSoundBtn">声音开关</button>
+    <button class="action-btn" id="mobileStatsBtn">统计</button>
+    <button class="action-btn" id="mobileHistoryBtn">历史</button>
+    <button class="action-btn danger" id="mobileCloseSettingsBtn">关闭</button>
+  </div>
+</div>
+
 <!-- ============== 历史侧栏 ============== -->
 <div class="overlay-mask" id="overlayMask"></div>
 <aside class="history-sidebar" id="historySidebar">
@@ -2109,7 +2397,7 @@ select option { background: var(--bg-elev); color: var(--text); }
       <input type="file" id="importHistoryInput" accept=".json,application/json" style="display:none">
       <button class="hf-action danger" id="clearHistoryBtn">清空</button>
     </div>
-    <span class="hf-meta">v5.3 · localStorage · 上限 500 条</span>
+    <span class="hf-meta">v6.0 · localStorage · 上限 500 条</span>
   </div>
 </aside>
 
@@ -3303,6 +3591,10 @@ const UI = {
     this.maybeShowGuide();
     this.updateTitle();
     setTimeout(() => pollManager.resumeAll(), 300);
+    // 手机端初始化：默认显示参数视图
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      $('.param-panel').classList.add('mobile-active');
+    }
   },
 
   maybeShowGuide() {
@@ -3340,6 +3632,57 @@ const UI = {
       const inp = $('#ghTokenInput');
       inp.type = inp.type === 'password' ? 'text' : 'password';
     });
+    // 手机端分段控件
+    $$('.mobile-segment-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        $$('.mobile-segment-btn').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        const seg = b.dataset.seg;
+        $('.param-panel').classList.toggle('mobile-active', seg === 'param');
+        $('.result-panel').classList.toggle('mobile-active', seg === 'result');
+      });
+    });
+    // 手机端底部 Tab
+    $$('.mobile-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        $$('.mobile-tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        this.switchTab(t.dataset.mtab);
+      });
+    });
+    // 手机端设置抽屉
+    $('#mobileSettingsBtn')?.addEventListener('click', () => {
+      $('#mobileSettingsOverlay').classList.add('show');
+      $('#mobileSettingsSheet').classList.add('show');
+      // 同步当前值
+      $('#mobileApiKey').value = Store.getApiKey();
+      $('#mobileGhToken').value = Store.getGithubToken();
+    });
+    $('#mobileCloseSettingsBtn')?.addEventListener('click', () => {
+      $('#mobileSettingsOverlay').classList.remove('show');
+      $('#mobileSettingsSheet').classList.remove('show');
+    });
+    $('#mobileSettingsOverlay')?.addEventListener('click', () => {
+      $('#mobileSettingsOverlay').classList.remove('show');
+      $('#mobileSettingsSheet').classList.remove('show');
+    });
+    $('#mobileApiKey')?.addEventListener('input', e => {
+      Store.setApiKey(e.target.value.trim());
+      $('#apiKeyInput').value = e.target.value.trim();
+    });
+    $('#mobileGhToken')?.addEventListener('input', e => {
+      Store.setGithubToken(e.target.value.trim());
+      $('#ghTokenInput').value = e.target.value.trim();
+    });
+    $('#mobileThemeBtn')?.addEventListener('click', () => $('#themeToggleBtn').click());
+    $('#mobileSoundBtn')?.addEventListener('click', () => $('#soundToggleBtn').click());
+    $('#mobileStatsBtn')?.addEventListener('click', () => { this.showStats(); });
+    $('#mobileHistoryBtn')?.addEventListener('click', () => {
+      $('#mobileSettingsOverlay').classList.remove('show');
+      $('#mobileSettingsSheet').classList.remove('show');
+      this.toggleHistory(true);
+    });
+
     // E3: 测试连接
     $('#testKeyBtn').addEventListener('click', () => this.testApiKey());
     // 引导横幅
@@ -3606,6 +3949,21 @@ const UI = {
       document.title = `⏳ ${running.length} 个任务生成中 · 已等 ${formatDuration(maxElapsed)}`;
     } else {
       document.title = 'AI 多媒体生成工作台 · 速创 API';
+    }
+  },
+
+  // 手机端切换分段视图
+  switchMobileSegment(seg) {
+    const isMobile = window.matchMedia('(max-width: 640px)').matches;
+    if (!isMobile) return;
+    $$('.mobile-segment-btn').forEach(x => x.classList.remove('active'));
+    $$(`.mobile-segment-btn[data-seg="${seg}"]`).forEach(x => x.classList.add('active'));
+    $('.param-panel').classList.toggle('mobile-active', seg === 'param');
+    $('.result-panel').classList.toggle('mobile-active', seg === 'result');
+    if (seg === 'result') {
+      // 切到结果时同步底部 tab
+      $$('.mobile-tab').forEach(x => x.classList.remove('active'));
+      $$(`.mobile-tab[data-mtab="${this.currentTab}"]`).forEach(x => x.classList.add('active'));
     }
   },
 
@@ -4110,6 +4468,8 @@ const UI = {
         this.renderHistory();
         this.updateTitle();
         pollManager.start({ id: taskId, apiId, modelName: model.name, startTime: now, historyId });
+        // 手机端自动切到结果视图
+        this.switchMobileSegment('result');
       } else {
         Toast.info('正在调用同步接口...');
         const tmpTask = {

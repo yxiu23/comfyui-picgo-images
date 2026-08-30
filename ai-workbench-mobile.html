@@ -241,7 +241,7 @@ select { background-image: none; }
 .toast.info { border-left-color: var(--brand); }
 .toast .msg { flex: 1; word-break: break-word; }
 .toast .ta { display: flex; gap: 4px; }
-.toast .tab { padding: 2px 8px; font-size: 11px; border-radius: 4px; background: var(--surface-2); color: var(--brand); border: 1px solid var(--border); }
+.toast .tbtn { padding: 2px 8px; font-size: 11px; border-radius: 4px; background: var(--surface-2); color: var(--brand); border: 1px solid var(--border); }
 @keyframes tin { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 /* ========== 编辑器 ========== */
@@ -729,11 +729,11 @@ const Toast = {
     const { duration = 3500, actions = [] } = opts;
     const el = document.createElement('div');
     el.className = `toast ${type}`;
-    const acts = actions.length ? `<div class="ta">${actions.map(a => `<button class="tab" data-a="${esc(a.action||'')}">${esc(a.label)}</button>`).join('')}</div>` : '';
-    el.innerHTML = `<div class="msg">${esc(msg)}</div>${acts}<button class="tab" style="font-size:14px;line-height:1">×</button>`;
+    const acts = actions.length ? `<div class="ta">${actions.map(a => `<button class="tbtn" data-a="${esc(a.action||'')}">${esc(a.label)}</button>`).join('')}</div>` : '';
+    el.innerHTML = `<div class="msg">${esc(msg)}</div>${acts}<button class="tbtn" style="font-size:14px;line-height:1">×</button>`;
     $('#toasts').appendChild(el);
     const close = () => { el.style.animation = 'tin 200ms reverse'; setTimeout(() => el.remove(), 200); };
-    el.querySelectorAll('.tab').forEach(b => {
+    el.querySelectorAll('.tbtn').forEach(b => {
       b.onclick = () => { const a = actions.find(x => x.action === b.dataset.a); if (a && a.onClick) a.onClick(); close(); };
     });
     if (duration > 0) setTimeout(close, duration);
@@ -948,10 +948,10 @@ const UI = {
     $('#themeBtn').onclick = () => { const cur = document.documentElement.getAttribute('data-theme'); this.applyTheme(cur === 'dark' ? 'light' : 'dark'); Store.setTheme(cur === 'dark' ? 'light' : 'dark'); };
     $('#soundBtn').onclick = () => { const cur = Store.getSound(); Store.setSound(!cur); Toast.info(!cur ? '声音已开启' : '声音已关闭'); };
     $('#statsBtn').onclick = () => { this.closeSheet('settingsSheet', 'settingsOverlay'); this.showStats(); };
-    $('#historyBtn').onclick = () => { this.closeSheet('settingsSheet', 'settingsOverlay'); window.location.href = '?view=history'; };
+    $('#historyBtn').onclick = () => { this.closeSheet('settingsSheet', 'settingsOverlay'); this.showHistory(); };
 
     // Tab
-    $$('.tab').forEach(t => t.onclick = () => this.switchTab(t.dataset.tab));
+    $$('.tab[data-tab]').forEach(t => t.onclick = () => this.switchTab(t.dataset.tab));
     // 模型选择
     $('#modelBtn').onclick = () => this.openSheet('modelSheet', 'modelOverlay');
     $('#modelOverlay').onclick = () => this.closeSheet('modelSheet', 'modelOverlay');
@@ -973,9 +973,6 @@ const UI = {
     this.renderResults();
     // 恢复轮询
     setTimeout(() => poller.resumeAll(), 300);
-    // 检查 URL 参数
-    const params = new URLSearchParams(location.search);
-    if (params.get('view') === 'history') { this.showHistory(); history.replaceState(null, '', location.pathname); }
   },
 
   openSheet(sheetId, overlayId) { $('#'+overlayId).classList.add('show'); $('#'+sheetId).classList.add('show'); },
@@ -999,7 +996,7 @@ const UI = {
   switchTab(tab) {
     this.saveFormToCache();
     this.tab = tab;
-    $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    $$('.tab[data-tab]').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
     // 填充模型列表
     $('#modelList').innerHTML = MODELS[tab].map(m => `<div class="model-item" data-mid="${m.id}"><div class="model-item-name">${esc(m.name)}</div><div class="model-item-desc">${esc(m.desc||m.price)}</div><div class="model-item-price">${esc(m.price)}</div></div>`).join('');
     $$('.model-item').forEach(el => el.onclick = () => {

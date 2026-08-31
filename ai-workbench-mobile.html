@@ -59,6 +59,21 @@ select { background-image: none; }
 ::-webkit-scrollbar { width: 0; height: 0; }
 ::selection { background: var(--brand-soft); }
 
+/* ========== 生成 / 结果切换 ========== */
+.view-switcher { display:none; }
+.workspace-switch {
+  width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center; position: relative;
+  color: var(--text-muted); background: var(--surface);
+}
+.workspace-switch svg { width: 17px; height: 17px; }
+.workspace-switch:active { transform: scale(var(--touch-scale)); }
+.workspace-switch.result-mode { color: var(--brand); border-color: var(--brand-soft); background: var(--brand-soft); }
+.workspace-switch .view-result-badge {
+  position:absolute; top:-5px; right:-5px; min-width:15px; height:15px; padding:0 3px; border-radius:999px;
+  display:inline-flex; align-items:center; justify-content:center; background:var(--brand-soft); color:var(--brand);
+  font-size:8px; font-weight:700; border:2px solid var(--bg-elev);
+}
 /* ========== Header ========== */
 .header {
   height: 44px; display: flex; align-items: center; justify-content: space-between;
@@ -74,8 +89,8 @@ select { background-image: none; }
 
 /* ========== 内容区 ========== */
 .content {
-  height: calc(100vh - 44px - 56px - var(--safe-bottom));
-  height: calc(100dvh - 44px - 56px - var(--safe-bottom));
+  height: calc(100vh - 44px - 42px - 56px - var(--safe-bottom));
+  height: calc(100dvh - 44px - 42px - 56px - var(--safe-bottom));
   overflow: hidden; position: relative;
 }
 .view { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; padding: 12px 12px 20px; opacity: 0; transform: translateY(6px); pointer-events: none; }
@@ -359,10 +374,17 @@ select { background-image: none; }
 
 <!-- ========== Header ========== -->
 <div class="header">
-  <span class="header-title">AI 工作台</span><button class="header-btn" id="mobileTaskDockBtn" aria-label="运行任务">0</button>
-  <button class="header-btn" id="settingsBtn">
+  <span class="header-title">AI 工作台</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button type="button" class="workspace-switch" id="workspaceSwitchBtn" aria-label="切换到结果区" title="切换工作区">
+      <svg id="workspaceSwitchIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+      <span class="view-result-badge" id="viewResultBadge" style="display:none">0</span>
+    </button>
+    <button class="header-btn" id="mobileTaskDockBtn" aria-label="运行任务">0</button>
+    <button class="header-btn" id="settingsBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
+  </div>
 </div>
 
 <!-- ========== 内容区 ========== -->
@@ -1276,6 +1298,9 @@ const UI = {
 
     // Tab
     $$('.tab[data-tab]').forEach(t => t.onclick = () => this.switchTab(t.dataset.tab));
+    // 工作区单键切换：生成区 ↔ 结果区
+    const workspaceBtn = $('#workspaceSwitchBtn');
+    if (workspaceBtn) workspaceBtn.onclick = () => this.switchView(this.currentView === 'resultView' ? 'paramView' : 'resultView');
     // 模型选择
     $('#modelBtn').onclick = () => this.openSheet('modelSheet', 'modelOverlay');
     $('#modelOverlay').onclick = () => this.closeSheet('modelSheet', 'modelOverlay');
@@ -1305,6 +1330,8 @@ const UI = {
     this.switchTab('image');
     this.renderPresets();
     this.renderResults();
+    this.switchView('param');
+    updateViewResultBadge();
     // 恢复轮询
     setTimeout(() => poller.resumeAll(), 300);
   },
@@ -1617,8 +1644,24 @@ const UI = {
   },
 
   switchView(view) {
-    $$('.view').forEach(v => v.classList.remove('active'));
-    $('#'+view+'View').classList.add('active');
+    const targetId = view.endsWith('View') ? view : view + 'View';
+    const target = document.getElementById(targetId) || document.getElementById('paramView');
+    const finalId = target.id;
+    this.currentView = finalId;
+    $$('.view').forEach(v => v.classList.toggle('active', v.id === finalId));
+    const btn = document.getElementById('workspaceSwitchBtn');
+    const icon = document.getElementById('workspaceSwitchIcon');
+    if (btn && icon) {
+      const resultMode = finalId === 'resultView';
+      btn.classList.toggle('result-mode', resultMode);
+      btn.setAttribute('aria-label', resultMode ? '切换到生成区' : '切换到结果区');
+      btn.title = resultMode ? '返回生成区' : '查看结果';
+      icon.innerHTML = resultMode
+        ? '<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.5"></circle>'
+        : '<path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path>';
+    }
+    if (finalId === 'resultView' && typeof this.renderResults === 'function') this.renderResults();
+    if (typeof updateViewResultBadge === 'function') updateViewResultBadge();
   },
 
   renderResults() {
@@ -1862,146 +1905,211 @@ const UI = {
   },
 
   // ===== 编辑器 =====
-  editor: { canvas:null,ctx:null,bg:null,bgCtx:null,img:null,origSrc:null,tool:'rect',color:'255,0,0',opacity:.5,brushSize:30,expandSize:256,feather:8,isDrawing:false,startX:0,startY:0,undoStack:[],rectSnap:null,curBrush:null,dirty:false },
+  editor: {
+    canvas:null, ctx:null, bg:null, bgCtx:null, img:null, imgClean:false, origSrc:null,
+    tool:'rect', color:'255,0,0', opacity:.5, brushSize:30, expandSize:256, feather:8,
+    isDrawing:false, startX:0, startY:0, undoStack:[], rectPreview:null, strokeSnapshot:null,
+    maskOps:[], currentBrush:null, dirty:false
+  },
 
   openEditor(url) {
-    if(!url) return;
-    $('#editor').classList.add('show'); $('#canvasHint').textContent='加载中…'; $('#canvasHint').classList.remove('hide'); $('#editorPrompt').value='';
-    this.editor.dirty=false; this.editor.undoStack=[];
-    const loadImage=(src,crossOrigin=false)=>new Promise((resolve,reject)=>{ const img=new Image(); if(crossOrigin) img.crossOrigin='anonymous'; img.onload=()=>resolve(img); img.onerror=()=>reject(new Error('IMAGE_LOAD_FAILED')); img.src=src; });
+    if(!url){ Toast.error('图片 URL 为空'); return; }
+    $('#editor').classList.add('show');
+    $('#canvasHint').textContent='加载图片…'; $('#canvasHint').classList.remove('hide');
+    const promptEl=$('#editorPrompt'); if(promptEl) promptEl.value='';
+    this.editor.isDrawing=false; this.editor.undoStack=[]; this.editor.maskOps=[]; this.editor.currentBrush=null; this.editor.rectPreview=null; this.editor.strokeSnapshot=null;
+    const loadImage=(src,crossOrigin=false)=>new Promise((resolve,reject)=>{
+      const img=new Image(); if(crossOrigin) img.crossOrigin='anonymous';
+      img.onload=()=>resolve(img); img.onerror=()=>reject(new Error('IMAGE_LOAD_FAILED')); img.src=src;
+    });
     (async()=>{
-      try{ const img=await loadImage(url,false); this.editor.img=img; this.editor.origSrc=url; this.editor.imgClean=false; this.initEditorCanvas(); $('#canvasHint').classList.add('hide'); }
-      catch{
-        try{ const proxyUrl='https://images.weserv.nl/?url='+encodeURIComponent(url.replace(/^https?:\/\//,'')); const img=await loadImage(proxyUrl,true); this.editor.img=img; this.editor.origSrc=url; this.editor.imgClean=true; this.initEditorCanvas(); $('#canvasHint').classList.add('hide'); }
-        catch{ $('#canvasHint').textContent='图片加载失败，请先使用公开可访问的图片地址'; Toast.error('编辑器无法读取此图片'); }
+      try{
+        const img=await loadImage(url,false);
+        this.editor.img=img; this.editor.origSrc=url; this.editor.imgClean=false;
+        this.initEditorCanvas(); $('#canvasHint').classList.add('hide');
+      }catch{
+        try{
+          const proxyUrl='https://images.weserv.nl/?url='+encodeURIComponent(url.replace(/^https?:\/\//,''));
+          const img=await loadImage(proxyUrl,true);
+          this.editor.img=img; this.editor.origSrc=url; this.editor.imgClean=true;
+          this.initEditorCanvas(); $('#canvasHint').classList.add('hide');
+        }catch{
+          $('#canvasHint').textContent='图片加载失败，请先使用公开可访问的图片地址';
+          Toast.error('编辑器无法读取此图片');
+        }
       }
     })();
   },
+
   initEditorCanvas() {
-    const m = $('#maskCanvas'); const c = m.getContext('2d');
-    const b = $('#bgCanvas'); const bc = b.getContext('2d');
-    const img = this.editor.img; const MAX = 1024;
-    let w = img.naturalWidth, h = img.naturalHeight;
-    if (w > MAX || h > MAX) { const r = Math.min(MAX/w, MAX/h); w = Math.round(w*r); h = Math.round(h*r); }
-    m.width = w; m.height = h; b.width = w; b.height = h;
-    bc.clearRect(0,0,b.width,b.height); bc.drawImage(img,0,0,w,h); c.clearRect(0,0,w,h); c.globalCompositeOperation='source-over'; this.editor.dirty=false;
-    this.editor.canvas = m; this.editor.ctx = c; this.editor.bg = b; this.editor.bgCtx = bc;
-    this.editor.undoStack = []; this.pushUndo(); this.bindEditorEvents();
-    const bg2 = $('#brushSizeGroup'); if (bg2) { const nb = this.editor.tool === 'brush' || this.editor.tool === 'eraser'; bg2.style.opacity = nb ? '1' : '0.4'; bg2.style.pointerEvents = nb ? 'auto' : 'none'; }
-    const op = $('#outpaintCtrl'); if (op) op.style.display = this.editor.tool === 'outpaint' ? 'flex' : 'none';
+    const canvas=$('#maskCanvas'), ctx=canvas.getContext('2d');
+    const bgCanvas=$('#bgCanvas'), bgCtx=bgCanvas.getContext('2d');
+    const img=this.editor.img; if(!img) return;
+    const MAX=1024; let w=img.naturalWidth, h=img.naturalHeight;
+    if(w>MAX || h>MAX){ const r=Math.min(MAX/w,MAX/h); w=Math.round(w*r); h=Math.round(h*r); }
+    canvas.width=w; canvas.height=h; bgCanvas.width=w; bgCanvas.height=h;
+    bgCtx.clearRect(0,0,w,h); bgCtx.drawImage(img,0,0,w,h);
+    ctx.clearRect(0,0,w,h); ctx.globalCompositeOperation='source-over';
+    this.editor.canvas=canvas; this.editor.ctx=ctx; this.editor.bg=bgCanvas; this.editor.bgCtx=bgCtx;
+    this.editor.undoStack=[]; this.editor.maskOps=[]; this.pushUndo(); this.bindEditorEvents();
+    this.updateEditorToolUI();
   },
+
+  updateEditorToolUI(){
+    const bg=$('#brushSizeGroup'); if(bg){ const need=this.editor.tool==='brush'||this.editor.tool==='eraser'; bg.style.opacity=need?'1':'0.4'; bg.style.pointerEvents=need?'auto':'none'; }
+    const op=$('#outpaintCtrl'); if(op) op.style.display=this.editor.tool==='outpaint'?'flex':'none';
+    const c=$('#maskCanvas'); if(c) c.className=`tool-${this.editor.tool}`;
+  },
+
   bindEditorEvents() {
-    $('#editorCloseBtn').onclick = () => { this.editor.isDrawing=false; $('#editor').classList.remove('show'); };
-    $$('.tb[data-tool]').forEach(b => b.onclick = () => {
-      $$('.tb[data-tool]').forEach(x => x.classList.remove('active')); b.classList.add('active');
-      this.editor.tool = b.dataset.tool;
-      const bg = $('#brushSizeGroup'); if (bg) { const nb = this.editor.tool === 'brush' || this.editor.tool === 'eraser'; bg.style.opacity = nb ? '1' : '0.4'; bg.style.pointerEvents = nb ? 'auto' : 'none'; }
-      const op = $('#outpaintCtrl'); if (op) op.style.display = this.editor.tool === 'outpaint' ? 'flex' : 'none';
+    $('#editorCloseBtn').onclick=()=>this.closeEditor();
+    $$('.tb[data-tool]').forEach(b=>b.onclick=()=>{
+      $$('.tb[data-tool]').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+      this.editor.tool=b.dataset.tool; this.editor.isDrawing=false; this.editor.currentBrush=null; this.updateEditorToolUI();
     });
-    $$('.sb[data-size]').forEach(b => b.onclick = () => { $$('.sb[data-size]').forEach(x => x.classList.remove('active')); b.classList.add('active'); this.editor.brushSize = +b.dataset.size; });
-    $$('.cb').forEach(b => b.onclick = () => { $$('.cb').forEach(x => x.classList.remove('active')); b.classList.add('active'); this.editor.color = b.dataset.color; });
-    $('#opacitySlider').oninput = e => { this.editor.opacity = +e.target.value / 100; $('#opacityValue').textContent = e.target.value + '%'; };
-    $('#featherSlider').oninput = e => { this.editor.feather = +e.target.value; $('#featherValue').textContent = e.target.value + 'px'; };
-    $$('.sb[data-expand]').forEach(b => b.onclick = () => { $$('.sb[data-expand]').forEach(x => x.classList.remove('active')); b.classList.add('active'); this.editor.expandSize = +b.dataset.expand; });
-    $('#applyOutpaintBtn').onclick = () => this.applyOutpaint();
-    $('#undoBtn').onclick = () => this.undoEditor();
-    $('#clearBtn').onclick=()=>{ if(!this.editor.ctx) return; this.editor.ctx.clearRect(0,0,this.editor.canvas.width,this.editor.canvas.height); this.editor.undoStack=[]; this.pushUndo(); this.editor.dirty=true; };
-    $('#editorConfirmBtn').onclick = () => this.confirmEditor();
-    const c = this.editor.canvas;
-    c.onmousedown = e => this.edDown(e); c.onmousemove = e => this.edMove(e); c.onmouseup = e => this.edUp(e); c.onmouseleave = e => this.edUp(e);
-    c.ontouchstart = e => { e.preventDefault(); this.edDown(e.touches[0]); };
-    c.ontouchmove = e => { e.preventDefault(); this.edMove(e.touches[0]); };
-    c.ontouchend = e => { e.preventDefault(); const t = e.changedTouches[0]; this.edUp(t); };
+    $$('.sb[data-size]').forEach(b=>b.onclick=()=>{
+      $$('.sb[data-size]').forEach(x=>x.classList.remove('active')); b.classList.add('active'); this.editor.brushSize=+b.dataset.size;
+    });
+    $$('.cb').forEach(b=>b.onclick=()=>{
+      $$('.cb').forEach(x=>x.classList.remove('active')); b.classList.add('active'); this.editor.color=b.dataset.color;
+    });
+    const op=$('#opacitySlider'); if(op) op.oninput=e=>{this.editor.opacity=+e.target.value/100; $('#opacityValue').textContent=e.target.value+'%';};
+    const fs=$('#featherSlider'); if(fs) fs.oninput=e=>{this.editor.feather=+e.target.value; $('#featherValue').textContent=e.target.value+'px';};
+    $$('.sb[data-expand]').forEach(b=>b.onclick=()=>{$$('.sb[data-expand]').forEach(x=>x.classList.remove('active'));b.classList.add('active');this.editor.expandSize=+b.dataset.expand;});
+    $('#applyOutpaintBtn').onclick=()=>this.applyOutpaint();
+    $('#undoBtn').onclick=()=>this.undoEditor();
+    $('#clearBtn').onclick=()=>this.clearEditor();
+    $('#editorConfirmBtn').onclick=()=>this.confirmEditor();
+    const c=this.editor.canvas;
+    c.onmousedown=e=>this.onEditorDown(e); c.onmousemove=e=>this.onEditorMove(e); c.onmouseup=e=>this.onEditorUp(e); c.onmouseleave=e=>this.onEditorUp(e);
+    c.ontouchstart=e=>{e.preventDefault(); this.onEditorDown(e.touches[0]);};
+    c.ontouchmove=e=>{e.preventDefault(); this.onEditorMove(e.touches[0]);};
+    c.ontouchend=e=>{e.preventDefault(); const t=e.changedTouches[0]; if(t) this.onEditorUp(t);};
   },
-  edPos(e) { const r = this.editor.canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * (this.editor.canvas.width / r.width), y: (e.clientY - r.top) * (this.editor.canvas.height / r.height) }; },
-  edDown(e) {
-    if (!this.editor.img || this.editor.tool === 'outpaint') return;
-    const p = this.edPos(e); this.editor.isDrawing = true; this.editor.startX = p.x; this.editor.startY = p.y;
-    if(this.editor.tool==='rect'){ this.editor.rectSnap=this.snap(); }
-    else { const c=this.editor.ctx; c.lineCap='round'; c.lineJoin='round'; c.lineWidth=this.editor.brushSize; c.strokeStyle=this.editor.tool==='brush'?`rgba(${this.editor.color},${this.editor.opacity})`:'rgba(0,0,0,1)'; c.globalCompositeOperation=this.editor.tool==='eraser'?'destination-out':'source-over'; c.beginPath(); c.moveTo(p.x,p.y); c.lineTo(p.x+.01,p.y+.01); c.stroke(); c.globalCompositeOperation='source-over'; this.editor.curBrush={type:this.editor.tool}; }
+
+  getCanvasPos(e){
+    const canvas=this.editor.canvas, rect=canvas.getBoundingClientRect();
+    const sx=canvas.width/(rect.width||1), sy=canvas.height/(rect.height||1);
+    return {x:(e.clientX-rect.left)*sx, y:(e.clientY-rect.top)*sy};
   },
-  edMove(e) {
-    if (!this.editor.isDrawing) return;
-    const p = this.edPos(e); const c = this.editor.ctx;
-    if (this.editor.tool === 'rect') { this.restore(this.editor.rectSnap); c.fillStyle = `rgba(${this.editor.color},${this.editor.opacity})`; c.fillRect(Math.min(this.editor.startX,p.x), Math.min(this.editor.startY,p.y), Math.abs(p.x-this.editor.startX), Math.abs(p.y-this.editor.startY)); }
-    else { c.lineTo(p.x, p.y); c.stroke(); if (this.editor.curBrush) this.editor.curBrush.points.push({x:p.x,y:p.y}); }
+
+  onEditorDown(e){
+    if(!this.editor.img || !this.editor.canvas || this.editor.tool==='outpaint') return;
+    const p=this.getCanvasPos(e); this.editor.isDrawing=true; this.editor.startX=p.x; this.editor.startY=p.y;
+    if(this.editor.tool==='rect'){
+      this.editor.rectPreview=this.snapshotMaskCanvas();
+    }else{
+      this.editor.strokeSnapshot=this.snapshotMaskCanvas();
+      this.editor.currentBrush={type:this.editor.tool,color:this.editor.color,opacity:this.editor.opacity,size:this.editor.brushSize,points:[{x:p.x,y:p.y}]};
+      this.redrawStroke(this.editor.currentBrush);
+    }
   },
-  edUp(e) {
-    if (!this.editor.isDrawing) return;
-    this.editor.isDrawing = false;
-    if (this.editor.tool === 'rect' && e) { const p = this.edPos(e); const w = Math.abs(p.x-this.editor.startX), h = Math.abs(p.y-this.editor.startY); if (w > 2 && h > 2) { /* recorded */ } }
-    if (this.editor.curBrush) { this.editor.curBrush = null; }
+
+  onEditorMove(e){
+    if(!this.editor.isDrawing) return;
+    const p=this.getCanvasPos(e), ctx=this.editor.ctx;
+    if(this.editor.tool==='rect'){
+      this.restoreMaskCanvas(this.editor.rectPreview); this.drawRect(this.editor.startX,this.editor.startY,p.x,p.y);
+    }else if(this.editor.currentBrush){
+      this.editor.currentBrush.points.push({x:p.x,y:p.y});
+      this.restoreMaskCanvas(this.editor.strokeSnapshot); this.redrawStroke(this.editor.currentBrush);
+    }
+  },
+
+  onEditorUp(e){
+    if(!this.editor.isDrawing) return;
+    this.editor.isDrawing=false;
+    if(this.editor.tool==='rect' && e){
+      const p=this.getCanvasPos(e), x=Math.min(this.editor.startX,p.x), y=Math.min(this.editor.startY,p.y), w=Math.abs(p.x-this.editor.startX), h=Math.abs(p.y-this.editor.startY);
+      if(w>2&&h>2) this.editor.maskOps.push({type:'rect',color:this.editor.color,opacity:this.editor.opacity,x,y,w,h});
+    }else if(this.editor.currentBrush){
+      if(this.editor.currentBrush.points.length) this.editor.maskOps.push(this.editor.currentBrush);
+      this.editor.currentBrush=null;
+    }
     this.editor.dirty=true; this.pushUndo();
   },
-  snap() { const m=this.editor.canvas,b=this.editor.bg; return {mask:m?m.toDataURL('image/png'):null,bg:b?b.toDataURL('image/png'):null,width:m?.width||0,height:m?.height||0}; },
-  async restoreSnapshot(s) {
-    if(!s || !this.editor.canvas || !this.editor.bg) return;
-    const load=src=>new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; });
-    try{ const [mi,bi]=await Promise.all([s.mask?load(s.mask):Promise.resolve(null),s.bg?load(s.bg):Promise.resolve(null)]); const m=this.editor.canvas,b=this.editor.bg; if(s.width && s.height){m.width=s.width;m.height=s.height;b.width=s.width;b.height=s.height;} this.editor.ctx.clearRect(0,0,m.width,m.height); this.editor.bgCtx.clearRect(0,0,b.width,b.height); if(bi) this.editor.bgCtx.drawImage(bi,0,0); if(mi) this.editor.ctx.drawImage(mi,0,0); }catch{ Toast.error('撤销失败'); }
-  },
-  pushUndo() {
-    const m=this.editor.canvas,b=this.editor.bg; if(!m||!b) return;
-    const snap={width:m.width,height:m.height,mask:m.toDataURL('image/png'),bg:b.toDataURL('image/png')};
-    if(this.editor.undoStack.length>=20) this.editor.undoStack.shift(); this.editor.undoStack.push(snap);
-  },
-  undoEditor() { if(this.editor.undoStack.length<=1) return Toast.info('最早状态'); this.editor.undoStack.pop(); const s=this.editor.undoStack[this.editor.undoStack.length-1]; void this.restoreSnapshot(s); this.editor.dirty=true; },
 
-  applyOutpaint() {
-    const top = $('#dirTop').checked, bot = $('#dirBottom').checked, left = $('#dirLeft').checked, right = $('#dirRight').checked;
-    if (!top && !bot && !left && !right) return Toast.warning('选方向');
-    const exp = this.editor.expandSize; const bg = this.editor.bg; const bc = this.editor.bgCtx; const mc = this.editor.canvas; const mctx = this.editor.ctx;
-    const ow = bg.width, oh = bg.height; const nw = ow+(left?exp:0)+(right?exp:0), nh = oh+(top?exp:0)+(bot?exp:0); const ox = left?exp:0, oy = top?exp:0;
-    const tmpBg = document.createElement('canvas'); tmpBg.width = ow; tmpBg.height = oh; tmpBg.getContext('2d').drawImage(bg, 0, 0);
-    const tmpM = document.createElement('canvas'); tmpM.width = ow; tmpM.height = oh; tmpM.getContext('2d').drawImage(mc, 0, 0);
-    bg.width = nw; bg.height = nh; mc.width = nw; mc.height = nh;
-    bc.fillStyle = `rgba(${this.editor.color},${this.editor.opacity})`; bc.fillRect(0, 0, nw, nh);
-    bc.drawImage(tmpBg,ox,oy);    if (this.editor.feather > 0) { const f = this.editor.feather; bc.save(); bc.globalCompositeOperation = 'source-over';
-      if (top) { const g = bc.createLinearGradient(0,oy-f,0,oy+f); g.addColorStop(0,`rgba(${this.editor.color},0)`); g.addColorStop(1,`rgba(${this.editor.color},${this.editor.opacity})`); bc.fillStyle=g; bc.fillRect(ox,oy-f,ow,f*2); }
-      if (bot) { const g = bc.createLinearGradient(0,oy+oh-f,0,oy+oh+f); g.addColorStop(0,`rgba(${this.editor.color},${this.editor.opacity})`); g.addColorStop(1,`rgba(${this.editor.color},0)`); bc.fillStyle=g; bc.fillRect(ox,oy+oh-f,ow,f*2); }
-      if (left) { const g = bc.createLinearGradient(ox-f,0,ox+f,0); g.addColorStop(0,`rgba(${this.editor.color},0)`); g.addColorStop(1,`rgba(${this.editor.color},${this.editor.opacity})`); bc.fillStyle=g; bc.fillRect(ox-f,oy,f*2,oh); }
-      if (right) { const g = bc.createLinearGradient(ox+ow-f,0,ox+ow+f,0); g.addColorStop(0,`rgba(${this.editor.color},${this.editor.opacity})`); g.addColorStop(1,`rgba(${this.editor.color},0)`); bc.fillStyle=g; bc.fillRect(ox+ow-f,oy,f*2,oh); }
-      bc.restore();
-    }
- mctx.drawImage(tmpM,ox,oy);
-    this.editor.dirty=true; this.pushUndo(); Toast.success(`扩展至 ${nw}×${nh}`);
+  redrawStroke(brush){
+    const ctx=this.editor.ctx, pts=brush.points; if(!ctx||!pts||!pts.length) return;
+    ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=brush.size;
+    if(brush.type==='brush'){ ctx.strokeStyle=`rgba(${brush.color},${brush.opacity})`; ctx.globalCompositeOperation='source-over'; }
+    else { ctx.strokeStyle='rgba(0,0,0,1)'; ctx.globalCompositeOperation='destination-out'; }
+    ctx.beginPath();
+    if(pts.length===1){ctx.moveTo(pts[0].x,pts[0].y);ctx.lineTo(pts[0].x+.01,pts[0].y+.01);} else {ctx.moveTo(pts[0].x,pts[0].y); for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);}
+    ctx.stroke(); ctx.restore(); ctx.globalCompositeOperation='source-over';
   },
-  async confirmEditor() {
-    const prompt = String($('#editorPrompt')?.value||'').trim();
-    if (!prompt) return Toast.warning('请填写描述');
-    const btn = $('#editorConfirmBtn'); btn.disabled = true; btn.textContent = '上传中…';
-    try {
-      const mc = this.editor.canvas; const bg = this.editor.bg;
-      const w = Math.max(bg.width, mc.width), h = Math.max(bg.height, mc.height);
-      let mergedUrl = null;
-      // 尝试 weserv 代理获取干净原图
-      try {
-        const proxyUrl = 'https://images.weserv.nl/?url=' + encodeURIComponent(this.editor.origSrc.replace(/^https?:\/\//, ''));
-        const cleanImg = await new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = rej; i.src = proxyUrl; });
-        const mc2 = document.createElement('canvas'); mc2.width = w; mc2.height = h; const c2 = mc2.getContext('2d');
-        c2.fillStyle = '#fff'; c2.fillRect(0,0,w,h);
-        c2.drawImage(cleanImg, Math.round((w-bg.width)/2), Math.round((h-bg.height)/2), bg.width, bg.height);
-        c2.drawImage(mc, Math.round((w-mc.width)/2), Math.round((h-mc.height)/2));
-        mergedUrl = mc2.toDataURL('image/png');
-      } catch {}
-      // 尝试直接合并
-      if (!mergedUrl) {
-        try { const mc2 = document.createElement('canvas'); mc2.width = w; mc2.height = h; const c2 = mc2.getContext('2d');
-          c2.fillStyle='#fff'; c2.fillRect(0,0,w,h); c2.drawImage(bg,Math.round((w-bg.width)/2),Math.round((h-bg.height)/2)); c2.drawImage(mc,Math.round((w-mc.width)/2),Math.round((h-mc.height)/2)); mergedUrl=mc2.toDataURL('image/png');
-        } catch {}
+
+  drawRect(x1,y1,x2,y2){ const ctx=this.editor.ctx; const x=Math.min(x1,x2),y=Math.min(y1,y2),w=Math.abs(x2-x1),h=Math.abs(y2-y1); ctx.fillStyle=`rgba(${this.editor.color},${this.editor.opacity})`; ctx.fillRect(x,y,w,h); },
+  snapshotMaskCanvas(){ const tmp=document.createElement('canvas'); tmp.width=this.editor.canvas.width; tmp.height=this.editor.canvas.height; tmp.getContext('2d').drawImage(this.editor.canvas,0,0); return tmp; },
+  restoreMaskCanvas(snapshot){ if(!snapshot) return; const ctx=this.editor.ctx; ctx.clearRect(0,0,this.editor.canvas.width,this.editor.canvas.height); ctx.drawImage(snapshot,0,0); },
+
+  applyOutpaint(){
+    const top=$('#dirTop').checked, bottom=$('#dirBottom').checked, left=$('#dirLeft').checked, right=$('#dirRight').checked;
+    if(!top&&!bottom&&!left&&!right){Toast.warning('请选择至少一个扩展方向');return;}
+    const exp=Math.max(1,+this.editor.expandSize||256), bg=this.editor.bg, bgCtx=this.editor.bgCtx, mask=this.editor.canvas, maskCtx=this.editor.ctx;
+    if(!bg||!mask) return Toast.error('编辑器未就绪');
+    const oldW=bg.width,oldH=bg.height,newW=oldW+(left?exp:0)+(right?exp:0),newH=oldH+(top?exp:0)+(bottom?exp:0),ox=left?exp:0,oy=top?exp:0;
+    const tmpBg=document.createElement('canvas'); tmpBg.width=oldW;tmpBg.height=oldH;tmpBg.getContext('2d').drawImage(bg,0,0);
+    const tmpMask=document.createElement('canvas'); tmpMask.width=oldW;tmpMask.height=oldH;tmpMask.getContext('2d').drawImage(mask,0,0);
+    bg.width=newW;bg.height=newH;mask.width=newW;mask.height=newH;
+    bgCtx.fillStyle=`rgba(${this.editor.color},${this.editor.opacity})`;bgCtx.fillRect(0,0,newW,newH);bgCtx.drawImage(tmpBg,ox,oy);
+    if(this.editor.feather>0){
+      const f=Math.min(this.editor.feather,Math.max(1,Math.min(oldW,oldH)/2)); bgCtx.save();
+      const edge=`rgba(${this.editor.color},${this.editor.opacity})`, none=`rgba(${this.editor.color},0)`;
+      if(top){const g=bgCtx.createLinearGradient(0,oy-f,0,oy+f);g.addColorStop(0,none);g.addColorStop(1,edge);bgCtx.fillStyle=g;bgCtx.fillRect(ox,oy-f,oldW,f*2);}
+      if(bottom){const g=bgCtx.createLinearGradient(0,oy+oldH-f,0,oy+oldH+f);g.addColorStop(0,edge);g.addColorStop(1,none);bgCtx.fillStyle=g;bgCtx.fillRect(ox,oy+oldH-f,oldW,f*2);}
+      if(left){const g=bgCtx.createLinearGradient(ox-f,0,ox+f,0);g.addColorStop(0,none);g.addColorStop(1,edge);bgCtx.fillStyle=g;bgCtx.fillRect(ox-f,oy,f*2,oldH);}
+      if(right){const g=bgCtx.createLinearGradient(ox+oldW-f,0,ox+oldW+f,0);g.addColorStop(0,edge);g.addColorStop(1,none);bgCtx.fillStyle=g;bgCtx.fillRect(ox+oldW-f,oy,f*2,oldH);}
+      bgCtx.restore();
+    }
+    maskCtx.clearRect(0,0,newW,newH);maskCtx.drawImage(tmpMask,ox,oy);
+    this.editor.maskOps.push({type:'outpaint',color:this.editor.color,opacity:this.editor.opacity,feather:this.editor.feather,top,bottom,left,right,oldW,oldH,newW,newH,offsetX:ox,offsetY:oy});
+    this.editor.dirty=true; this.pushUndo(); Toast.success(`扩展至 ${newW}×${newH}`);
+  },
+
+  pushUndo(){
+    const m=this.editor.canvas,b=this.editor.bg;if(!m||!b)return;
+    const snap={width:m.width,height:m.height,mask:m.toDataURL('image/png'),bg:b.toDataURL('image/png'),maskOps:Array.isArray(this.editor.maskOps)?JSON.parse(JSON.stringify(this.editor.maskOps)):[]};
+    if(this.editor.undoStack.length>=20)this.editor.undoStack.shift();this.editor.undoStack.push(snap);
+  },
+  async restoreSnapshot(s){
+    if(!s||!this.editor.canvas||!this.editor.bg)return;
+    const load=src=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});
+    try{
+      const [mi,bi]=await Promise.all([s.mask?load(s.mask):null,s.bg?load(s.bg):null]);
+      const m=this.editor.canvas,b=this.editor.bg; if(s.width&&s.height){m.width=s.width;m.height=s.height;b.width=s.width;b.height=s.height;}
+      this.editor.ctx.clearRect(0,0,m.width,m.height);this.editor.bgCtx.clearRect(0,0,b.width,b.height);
+      if(bi)this.editor.bgCtx.drawImage(bi,0,0);if(mi)this.editor.ctx.drawImage(mi,0,0);
+      this.editor.maskOps=Array.isArray(s.maskOps)?JSON.parse(JSON.stringify(s.maskOps)):[];this.editor.dirty=true;
+    }catch{Toast.error('撤销失败');}
+  },
+  undoEditor(){if(this.editor.undoStack.length<=1){Toast.info('已经是最早状态');return;}this.editor.undoStack.pop();const s=this.editor.undoStack[this.editor.undoStack.length-1];void this.restoreSnapshot(s);},
+  clearEditor(){if(!this.editor.ctx)return;this.editor.ctx.clearRect(0,0,this.editor.canvas.width,this.editor.canvas.height);this.editor.maskOps=[];this.editor.undoStack=[];this.pushUndo();this.editor.dirty=true;Toast.info('已清空蒙版');},
+
+  async confirmEditor(){
+    if(!this.editor.canvas||!this.editor.bg){Toast.error('画布未就绪');return;}
+    const prompt=String($('#editorPrompt')?.value||'').trim();if(!prompt){Toast.warning('请填写修改描述');$('#editorPrompt')?.focus();return;}
+    const btn=$('#editorConfirmBtn'),orig=btn.textContent;btn.disabled=true;btn.textContent='合成上传中…';
+    try{
+      const maskCanvas=this.editor.canvas,bgCanvas=this.editor.bg,w=Math.max(bgCanvas.width,maskCanvas.width),h=Math.max(bgCanvas.height,maskCanvas.height);let mergedDataUrl=null;
+      const mergeWithImage=async(src,cross=true)=>{const i=new Image();if(cross)i.crossOrigin='anonymous';i.src=src;await new Promise((r,j)=>{i.onload=r;i.onerror=j;});const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(i,Math.round((w-bgCanvas.width)/2),Math.round((h-bgCanvas.height)/2),bgCanvas.width,bgCanvas.height);x.drawImage(maskCanvas,Math.round((w-maskCanvas.width)/2),Math.round((h-maskCanvas.height)/2));return c.toDataURL('image/png');};
+      try{const proxy='https://images.weserv.nl/?url='+encodeURIComponent(this.editor.origSrc.replace(/^https?:\/\//,''));mergedDataUrl=await mergeWithImage(proxy,true);}catch{}
+      if(!mergedDataUrl){
+        try{const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(bgCanvas,Math.round((w-bgCanvas.width)/2),Math.round((h-bgCanvas.height)/2));x.drawImage(maskCanvas,Math.round((w-maskCanvas.width)/2),Math.round((h-maskCanvas.height)/2));mergedDataUrl=c.toDataURL('image/png');}catch{}
       }
-      if(!mergedUrl) throw new Error('浏览器无法导出编辑结果，请更换允许跨域图片的来源');
-      let refUrl=Api.getCached(mergedUrl)||await Api.uploadGithub(mergedUrl); Api.setCached(mergedUrl,refUrl);
-      // 填入参考图
-      if (this.tab !== 'image') this.switchTab('image');
+      if(!mergedDataUrl)throw new Error('浏览器无法导出编辑结果');
+      let refUrl=Api.getCached(mergedDataUrl);if(!refUrl){refUrl=await Api.uploadGithub(mergedDataUrl);Api.setCached(mergedDataUrl,refUrl);}
+      if(this.tab!=='image')this.switchTab('image');
       const refParam=this.model?.params.find(p=>p.type==='ref-image');
-      if(refParam){ this.setRefs(refParam.key,[{id:'r_'+genId(),kind:'url',src:this.editor.origSrc,name:'原图',uploaded:true,remote:this.editor.origSrc},{id:'r_'+genId(),kind:'url',src:refUrl,name:'合成图',uploaded:true,remote:refUrl}]); this.refreshRefGrid(refParam.key); }
-      const pParam = this.model?.params.find(p => p.key === 'prompt');
-      if(pParam){ const ta=$(`textarea[data-key="${CSS.escape(pParam.key)}"]`); if(ta){ ta.value=prompt; ta.dispatchEvent(new Event('input',{bubbles:true})); } }
-      $('#editor').classList.remove('show');
-      this.switchView('param');
-      Toast.success('已填入参考图');
-    } catch (e) { Toast.error('失败: ' + e.message); }
-    finally { btn.disabled = false; btn.textContent = '用作参考图'; }
+      if(refParam){this.setRefs(refParam.key,[{id:'r_'+genId(),kind:'url',src:this.editor.origSrc,name:'原图',uploaded:true,remote:this.editor.origSrc},{id:'r_'+genId(),kind:'url',src:refUrl,name:'合成图',uploaded:true,remote:refUrl}]);this.refreshRefGrid(refParam.key);}
+      const pParam=this.model?.params.find(p=>p.key==='prompt');if(pParam){const ta=$(`textarea[data-key="${CSS.escape(pParam.key)}"]`);if(ta){ta.value=prompt;ta.dispatchEvent(new Event('input',{bubbles:true}));}}
+      this.closeEditor();this.switchView('param');Toast.success('已合成参考图并填入参数');
+    }catch(e){Toast.error('合成失败：'+e.message);}finally{btn.disabled=false;btn.textContent=orig;}
+  },
+
+  closeEditor(){
+    const ed=$('#editor');if(ed)ed.classList.remove('show');
+    this.editor.isDrawing=false;this.editor.currentBrush=null;this.editor.canvas=null;this.editor.ctx=null;this.editor.bg=null;this.editor.bgCtx=null;this.editor.img=null;this.editor.undoStack=[];this.editor.maskOps=[];
   }
 };
 
@@ -2027,6 +2135,15 @@ const PROMPT_PRESETS = [
 document.addEventListener('DOMContentLoaded', () => UI.init());
 setInterval(() => { const r = Store.getTasks().filter(t => t.status === 'running'); document.title = r.length > 0 ? `⏳ ${r.length}个任务` : 'AI 工作台'; }, 1000);
 
+/* ========== 结果数量徽标 ========== */
+function updateViewResultBadge(){
+  const badge=document.getElementById('viewResultBadge');
+  if(!badge || !window.Store) return;
+  const count=Store.getTasks().length;
+  badge.textContent=count>99?'99+':String(count);
+  badge.style.display=count>0?'inline-flex':'none';
+}
+
 /* ========== V8 移动端工作流优化模块 ========== */
 (function(){
   const escv = window.esc || (s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])));
@@ -2037,6 +2154,7 @@ setInterval(() => { const r = Store.getTasks().filter(t => t.status === 'running
     const b=qi('#mobileRunningCount'), hb=qi('#mobileTaskDockBtn');
     if(b)b.textContent=n; if(hb){hb.textContent=n>0?String(n):'•'; hb.style.color=n>0?'var(--brand)':'var(--text-dim)';}
     document.title=n>0?`⏳ ${n}个任务 · AI 工作台`:'AI 工作台 · 手机版';
+    updateViewResultBadge();
   }
   function addPromptTools(){
     const host=qi('#mobilePromptTools'); if(!host)return;

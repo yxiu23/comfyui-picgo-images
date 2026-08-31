@@ -64,11 +64,11 @@ select { background-image: none; }
 .view-switcher { display:none; }
 .workspace-switch {
   width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 10px;
-  display: inline-flex; align-items: center; justify-content: center; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: inline-flex; align-items: center; justify-content: center; position: relative;
   color: var(--text-muted); background: var(--surface);
 }
 .workspace-switch svg { width: 17px; height: 17px; }
-.workspace-switch:active { transform: translate(-50%, -50%) scale(var(--touch-scale)); }
+.workspace-switch:active { transform: scale(var(--touch-scale)); }
 .workspace-switch.result-mode { color: var(--brand); border-color: var(--brand-soft); background: var(--brand-soft); }
 .workspace-switch .view-result-badge {
   position:absolute; top:-5px; right:-5px; min-width:15px; height:15px; padding:0 3px; border-radius:999px;
@@ -77,7 +77,7 @@ select { background-image: none; }
 }
 /* ========== Header ========== */
 .header {
-  height: 44px; display: flex; align-items: center; justify-content: space-between; position: relative;
+  height: 44px; display: flex; align-items: center; justify-content: space-between;
   padding: 0 16px; background: var(--bg-elev); border-bottom: 1px solid var(--border); z-index: 30;
 }
 .header-title { font-size: 16px; font-weight: 600; }
@@ -223,22 +223,21 @@ select { background-image: none; }
 .act.danger { color: var(--danger); }
 .err-banner { background: rgba(229,72,77,.1); color: var(--danger); padding: 8px 10px; border-radius: 8px; font-size: 11px; margin-bottom: 8px; }
 
-/* ========== 底部 Tab：按屏幕高度自适应 ========== */
+/* ========== 底部 Tab：浏览器 / iOS 网页 App 分开处理 ========== */
 .tabbar {
-  position: fixed; bottom: var(--safe-bottom); left: 0; right: 0;
+  position: fixed; bottom: 0; left: 0; right: 0;
   height: var(--tabbar-core-h); padding-bottom: 0; box-sizing: border-box;
   background: var(--bg-elev); border-top: 1px solid var(--border);
   display: flex; z-index: 20;
 }
-.tabbar::after {
-  content: ""; position: absolute; top: 100%; left: 0; right: 0; height: var(--safe-bottom);
-  background: var(--bg-elev); border-top: 0; pointer-events: none;
-}
 @media (display-mode: standalone), (display-mode: fullscreen) {
-  :root { --tabbar-core-h: 48px; }
+  /* iOS 主屏幕网页 App 的 viewport 已包含底部手势区域；这里不再重复把 Tab 往上抬。 */
+  :root { --tabbar-core-h: 48px; --safe-bottom: 0px; }
   .tab { font-size: 10px; }
   .tab svg { width: 20px; height: 20px; }
 }
+/* iOS 浏览器仍保留安全区，但通过内容区预留避免底栏整体漂浮。 */
+
 .tab {
   flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   color: var(--text-dim); font-size: 10px; line-height: 1; position: relative; transition: color var(--transition);
@@ -401,7 +400,7 @@ select { background-image: none; }
       <svg id="workspaceSwitchIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
       <span class="view-result-badge" id="viewResultBadge" style="display:none">0</span>
     </button>
-    <button class="header-btn" id="mobileTaskDockBtn" aria-label="运行任务" style="display:none"></button>
+    <button class="header-btn" id="mobileTaskDockBtn" aria-label="运行任务">0</button>
     <button class="header-btn" id="settingsBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
@@ -2221,7 +2220,7 @@ function updateViewResultBadge(){
   function updateTaskDock(){
     const n=Store.getTasks().filter(t=>t.status==='running').length;
     const b=qi('#mobileRunningCount'), hb=qi('#mobileTaskDockBtn');
-    if(b)b.textContent=n; if(hb){hb.textContent=n>0?String(n):''; hb.style.color='var(--brand)'; hb.style.display=n>0?'flex':'none';}
+    if(b)b.textContent=n; if(hb){hb.textContent=n>0?String(n):'•'; hb.style.color=n>0?'var(--brand)':'var(--text-dim)';}
     document.title=n>0?`⏳ ${n}个任务 · AI 工作台`:'AI 工作台 · 手机版';
     updateViewResultBadge();
   }

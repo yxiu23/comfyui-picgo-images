@@ -4380,8 +4380,22 @@ const UI = {
     return group.querySelector(`[data-key=\"${CSS.escape(param.key)}\"]`) || group.querySelector('input,textarea,select');
   },
 
+  // 统一字段读取：允许传入 input/select/textarea；对缺失元素安全返回空串。
+  readFieldValue(el) {
+    if (!el) return '';
+    const value = el.value;
+    if (value === undefined || value === null) return '';
+    return String(value).trim();
+  },
+
   renderParamForm(modelId) {
     const model = this.getModel(this.currentTab, modelId);
+    if (!model) {
+      this.currentModel = null;
+      const meta = $('#modelMeta'); if (meta) meta.textContent = '未找到模型';
+      const form = $('#paramForm'); if (form) form.innerHTML = '<div style="padding:20px;color:var(--danger);font-size:12px">模型配置加载失败，请重新选择模型。</div>';
+      return;
+    }
     this.currentModel = model;
     if (!this.refState) this.refState = {};
     const modelKey = `${this.currentTab}/${modelId}`;
@@ -4401,8 +4415,9 @@ const UI = {
       const grp = document.createElement('div');
       grp.className = 'form-group';
       grp.dataset.key = p.key;
-      // A2：最近提示词 + 内置预设。UI 仅显示短名称，完整指令放入 prompt。
+        // A2：最近提示词 + 内置预设。UI 仅显示短名称，完整指令放入 prompt。
       let promptHistoryBtn = '';
+      let inspireBtn = '';
       if (p.key === 'prompt' || p.key === 'text') {
         promptHistoryBtn = `<button class="prompt-history-btn" type="button" id="phBtn-${p.key}">最近</button>`;
         inspireBtn = `<button class="prompt-history-btn" type="button" data-prompt-inspire="${p.key}">灵感</button>`;

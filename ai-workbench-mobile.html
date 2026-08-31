@@ -1465,7 +1465,9 @@ const UI = {
 
   async collectParamsAsync() {
     const body = {}; const errors = []; const f = $('#paramForm');
-    for (const p of this.model.params) {
+    const model = this.model;
+    if (!model || !f) return { body, errors: ['模型参数未加载'] };
+    for (const p of model.params) {
       const g = f.querySelector(`.form-group[data-key="${p.key}"]`); let val = null;
       if (p.type === 'ref-image') {
         const refs = this.getRefs(p.key);
